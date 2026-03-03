@@ -4,403 +4,251 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="VOA Field">
 <meta name="theme-color" content="#09111e">
 <title>VOA Field App</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+:root{--bg:#09111e;--surf:#0e1d30;--card:#132337;--bdr:#1c3352;--accent:#00d4a0;--blue:#38bdf8;--red:#fb4c6a;--gold:#fbbf24;--text:#ddeaf7;--muted:#5d7fa3;--r:13px;--font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 40% at 10% 0%,rgba(0,212,160,.07) 0%,transparent 60%),
+             radial-gradient(ellipse 55% 50% at 90% 95%,rgba(56,189,248,.06) 0%,transparent 60%)}
+.app{position:relative;z-index:1;max-width:460px;margin:0 auto;padding-bottom:120px}
 
-:root {
-  --bg:     #09111e;
-  --surf:   #0e1d30;
-  --card:   #132337;
-  --bdr:    #1c3352;
-  --accent: #00d4a0;
-  --blue:   #38bdf8;
-  --red:    #fb4c6a;
-  --gold:   #fbbf24;
-  --text:   #ddeaf7;
-  --muted:  #5d7fa3;
-  --r:      13px;
-  --font:   'DM Sans', sans-serif;
-  --mono:   'JetBrains Mono', monospace;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
-body::before {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background:
-    radial-gradient(ellipse 70% 40% at 10% 0%, rgba(0,212,160,.07) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 50% at 90% 95%, rgba(56,189,248,.06) 0%, transparent 60%);
-}
-.app { position: relative; z-index: 1; max-width: 460px; margin: 0 auto; padding-bottom: 110px; }
+/* ── Header ── */
+.hdr{position:sticky;top:0;z-index:60;background:rgba(9,17,30,.93);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--bdr);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-ic{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#009b75);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#09111e}
+.logo-title{font-size:15px;font-weight:700}.logo-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.hdr-right{text-align:right}
+.hdr-date{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.exec-pill{display:inline-flex;align-items:center;gap:5px;margin-top:3px;cursor:pointer;
+  background:rgba(0,212,160,.12);border:1px solid rgba(0,212,160,.25);
+  color:var(--accent);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
 
-/* ══════════════════════════════════════════════════════
-   NAME PICKER SCREEN
-══════════════════════════════════════════════════════ */
-.picker-screen {
-  position: fixed; inset: 0; z-index: 200;
-  background: var(--bg);
-  display: flex; flex-direction: column; align-items: center;
-  padding: 0 20px 40px; overflow-y: auto;
-}
-.picker-top {
-  width: 100%; max-width: 400px; text-align: center;
-  padding: 50px 0 32px;
-}
-.picker-logo {
-  width: 72px; height: 72px; border-radius: 20px; margin: 0 auto 20px;
-  background: linear-gradient(135deg, var(--accent), #009b75);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 22px; color: #09111e;
-  box-shadow: 0 8px 32px rgba(0,212,160,.25);
-}
-.picker-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-.picker-sub   { font-size: 13px; color: var(--muted); line-height: 1.6; }
+/* ── Picker ── */
+.picker-screen{position:fixed;inset:0;z-index:200;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;padding:0 20px 40px;overflow-y:auto}
+.picker-top{width:100%;max-width:400px;text-align:center;padding:50px 0 32px}
+.picker-logo{width:72px;height:72px;border-radius:20px;margin:0 auto 20px;
+  background:linear-gradient(135deg,var(--accent),#009b75);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#09111e;
+  box-shadow:0 8px 32px rgba(0,212,160,.25)}
+.picker-title{font-size:24px;font-weight:700;margin-bottom:6px}
+.picker-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.picker-label{width:100%;max-width:400px;font-size:10px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1.3px;font-weight:600;margin-bottom:12px;text-align:left}
+.name-grid{width:100%;max-width:400px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.name-btn{background:var(--card);border:1.5px solid var(--bdr);border-radius:12px;padding:16px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+  transition:border-color .15s,background .15s,transform .1s}
+.name-btn:active{transform:scale(.96)}.name-btn:hover{border-color:var(--accent);background:rgba(0,212,160,.06)}
+.nb-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.nb-name{font-size:14px;font-weight:600}.nb-role{font-size:10px;color:var(--muted)}
+.av-0{background:rgba(0,212,160,.15);color:var(--accent)}.av-1{background:rgba(56,189,248,.15);color:var(--blue)}
+.av-2{background:rgba(251,191,36,.15);color:var(--gold)}.av-3{background:rgba(251,76,106,.15);color:var(--red)}
+.av-4{background:rgba(167,139,250,.15);color:#a78bfa}.av-5{background:rgba(251,146,60,.15);color:#fb923c}
+.other-wrap{width:100%;max-width:400px}
+.other-label{font-size:10px;color:var(--muted);text-align:center;margin:4px 0 12px}
+.other-row{display:flex;gap:10px}
+.other-input{flex:1;background:var(--surf);border:1.5px solid var(--bdr);color:var(--text);
+  font-family:var(--font);font-size:14px;padding:12px 14px;border-radius:11px;outline:none}
+.other-go{flex:0 0 52px;height:50px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#009b75);
+  border:none;color:#09111e;font-size:20px;cursor:pointer}
 
-.picker-label {
-  width: 100%; max-width: 400px;
-  font-size: 10px; color: var(--muted); text-transform: uppercase;
-  letter-spacing: 1.3px; font-weight: 600; margin-bottom: 12px; text-align: left;
-}
+/* ── Sections ── */
+.sec{padding:16px 16px 0}
+.sec-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.3px;font-weight:600;margin-bottom:10px}
 
-/* Executive name buttons grid */
-.name-grid {
-  width: 100%; max-width: 400px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;
-}
-.name-btn {
-  background: var(--card); border: 1.5px solid var(--bdr);
-  border-radius: 12px; padding: 16px 12px;
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  cursor: pointer; transition: border-color .15s, background .15s, transform .1s;
-  position: relative; overflow: hidden;
-}
-.name-btn:active { transform: scale(.96); }
-.name-btn:hover  { border-color: var(--accent); background: rgba(0,212,160,.06); }
-.name-btn .nb-avatar {
-  width: 44px; height: 44px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 700;
-}
-.name-btn .nb-name { font-size: 14px; font-weight: 600; }
-.name-btn .nb-role { font-size: 10px; color: var(--muted); }
+/* ── Upload ── */
+.upload-zone{border:2px dashed var(--bdr);border-radius:var(--r);padding:26px 16px;text-align:center;
+  cursor:pointer;background:var(--surf);transition:border-color .2s}
+.upload-zone:hover{border-color:var(--blue)}
+.upload-zone input{display:none}
+.upload-icon{font-size:34px;margin-bottom:8px;opacity:.65}
+.upload-text{font-size:13px;color:var(--muted);line-height:1.6}
+.upload-text b{color:var(--blue)}
+.upload-done{background:rgba(0,212,160,.07);border:1px solid rgba(0,212,160,.2);
+  border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.ud-icon{font-size:24px;flex-shrink:0}
+.ud-name{font-size:13px;font-weight:600;color:var(--accent)}
+.ud-count{font-size:11px;color:var(--muted);margin-top:2px}
+.ud-change{margin-left:auto;font-size:11px;color:var(--muted);flex-shrink:0;
+  background:var(--surf);border:1px solid var(--bdr);padding:5px 12px;border-radius:20px;cursor:pointer}
 
-/* Avatar color variants */
-.av-0 { background: rgba(0,212,160,.15);  color: var(--accent); }
-.av-1 { background: rgba(56,189,248,.15); color: var(--blue); }
-.av-2 { background: rgba(251,191,36,.15); color: var(--gold); }
-.av-3 { background: rgba(251,76,106,.15); color: var(--red); }
-.av-4 { background: rgba(167,139,250,.15);color: #a78bfa; }
-.av-5 { background: rgba(251,146,60,.15); color: #fb923c; }
-.av-6 { background: rgba(52,211,153,.15); color: #34d399; }
-.av-7 { background: rgba(248,113,113,.15);color: #f87171; }
+/* ── Card & Fields ── */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+.field label{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:var(--surf);border:1.5px solid var(--bdr);
+  color:var(--text);font-family:var(--font);font-size:14px;padding:11px 14px;border-radius:10px;
+  outline:none;transition:border-color .15s;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field select{appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235d7fa3' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center}
+.field textarea{resize:none;height:64px;font-size:13px}
+.acc-badge{font-size:9px;background:rgba(56,189,248,.15);color:var(--blue);
+  padding:2px 8px;border-radius:10px;font-weight:600;display:none}
 
-/* "Not in list" section */
-.other-wrap { width: 100%; max-width: 400px; }
-.other-label {
-  font-size: 10px; color: var(--muted); text-align: center;
-  margin: 4px 0 12px; letter-spacing: .5px;
-}
-.other-row { display: flex; gap: 10px; }
-.other-input {
-  flex: 1; background: var(--surf); border: 1.5px solid var(--bdr);
-  color: var(--text); font-family: var(--font); font-size: 14px;
-  padding: 12px 14px; border-radius: 11px; outline: none; transition: border-color .15s;
-}
-.other-input:focus { border-color: var(--accent); }
-.other-input::placeholder { color: var(--muted); font-size: 13px; }
-.other-go {
-  flex: 0 0 52px; height: 50px; border-radius: 11px;
-  background: linear-gradient(135deg, var(--accent), #009b75);
-  border: none; color: #09111e; font-size: 20px; font-weight: 700;
-  cursor: pointer; transition: transform .1s;
-}
-.other-go:active { transform: scale(.96); }
+/* ── Account search box ── */
+.acc-search-wrap{position:relative}
+.acc-search-input{width:100%;background:var(--surf);border:1.5px solid var(--bdr);
+  color:var(--text);font-family:var(--mono);font-size:14px;padding:11px 44px 11px 14px;
+  border-radius:10px;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.acc-search-input:focus{border-color:var(--accent)}
+.acc-search-input::placeholder{font-family:var(--font);color:var(--muted);font-size:13px}
+.acc-search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;display:none;line-height:1}
 
-/* ══════════════════════════════════════════════════════
-   MAIN APP
-══════════════════════════════════════════════════════ */
-.hdr {
-  position: sticky; top: 0; z-index: 60;
-  background: rgba(9,17,30,.92); backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--bdr);
-  padding: 12px 18px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.logo { display: flex; align-items: center; gap: 10px; }
-.logo-ic {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent), #009b75);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 12px; color: #09111e;
-}
-.logo-title { font-size: 15px; font-weight: 700; }
-.logo-sub   { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.hdr-right  { text-align: right; }
-.hdr-date   { font-family: var(--mono); font-size: 10px; color: var(--muted); }
-.exec-pill  {
-  display: inline-flex; align-items: center; gap: 5px; margin-top: 3px;
-  background: rgba(0,212,160,.12); border: 1px solid rgba(0,212,160,.25);
-  color: var(--accent); font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: 20px; cursor: pointer;
-}
-.exec-pill .switch-ic { font-size: 10px; opacity: .7; }
+/* ── Account dropdown list ── */
+.acc-dropdown{display:none;position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:80;
+  background:var(--card);border:1px solid var(--bdr);border-radius:11px;
+  max-height:300px;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.acc-dropdown.open{display:block}
+.acc-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .1s}
+.acc-item:last-child{border-bottom:none}
+.acc-item:active,.acc-item:hover{background:rgba(0,212,160,.08)}
+.acc-item-no{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent)}
+.acc-item-name{font-size:12px;color:var(--text);margin-top:2px}
+.acc-item-area{font-size:10px;color:var(--muted);margin-top:1px}
+.acc-footer{padding:9px 14px;font-size:11px;color:var(--muted);text-align:center;font-style:italic;border-top:1px solid var(--bdr)}
 
-.sec { padding: 16px 16px 0; }
-.sec-title {
-  font-size: 10px; color: var(--muted); text-transform: uppercase;
-  letter-spacing: 1.3px; font-weight: 600; margin-bottom: 10px;
-}
+/* ── Autofill card ── */
+.autofill{margin-top:10px;padding:14px 16px;
+  background:rgba(0,212,160,.07);border:2px solid rgba(0,212,160,.3);
+  border-radius:12px;display:none;animation:slideup .15s ease}
+@keyframes slideup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.af-accno{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);letter-spacing:.5px}
+.af-custname{font-size:17px;font-weight:600;color:var(--text);margin-top:4px;
+  padding-bottom:10px;border-bottom:1px solid rgba(0,212,160,.15);margin-bottom:10px}
+.af-addr-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.af-addr-val{font-size:11px;color:var(--text);line-height:1.5;
+  padding-bottom:10px;border-bottom:1px solid rgba(0,212,160,.15);margin-bottom:10px}
+.af-row-grid{display:flex;gap:20px;flex-wrap:wrap}
+.af-item .af-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.af-item .af-val{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);margin-top:2px}
 
-/* Upload */
-.upload-zone {
-  border: 2px dashed var(--bdr); border-radius: var(--r);
-  padding: 26px 16px; text-align: center; cursor: pointer;
-  background: var(--surf); transition: border-color .2s, background .2s;
-}
-.upload-zone:hover { border-color: var(--blue); background: rgba(56,189,248,.04); }
-.upload-zone input { display: none; }
-.upload-icon { font-size: 34px; margin-bottom: 8px; opacity: .65; }
-.upload-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
-.upload-text b { color: var(--blue); }
-.upload-done {
-  background: rgba(0,212,160,.07); border: 1px solid rgba(0,212,160,.2);
-  border-radius: var(--r); padding: 12px 16px;
-  display: flex; align-items: center; gap: 12px;
-}
-.ud-icon { font-size: 24px; flex-shrink: 0; }
-.ud-name { font-size: 13px; font-weight: 600; color: var(--accent); }
-.ud-count { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.ud-change {
-  margin-left: auto; flex-shrink: 0;
-  font-size: 11px; color: var(--muted);
-  background: var(--surf); border: 1px solid var(--bdr);
-  padding: 5px 12px; border-radius: 20px; cursor: pointer;
-}
+/* ── Duplicate warning ── */
+.dup-warn{margin-top:8px;padding:9px 13px;
+  background:rgba(251,76,106,.1);border:1px solid rgba(251,76,106,.3);
+  border-radius:9px;font-size:12px;color:var(--red);font-weight:600;display:none}
 
-.card {
-  background: var(--card); border: 1px solid var(--bdr);
-  border-radius: var(--r); padding: 16px; margin-bottom: 10px;
-}
+/* ── Add button ── */
+.btn-add{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),#00a87c);
+  border:none;border-radius:11px;color:#09111e;font-family:var(--font);font-size:15px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 20px rgba(0,212,160,.2);transition:transform .1s}
+.btn-add:active{transform:scale(.97)}
 
-.field { margin-bottom: 14px; }
-.field:last-child { margin-bottom: 0; }
-.field label {
-  display: block; font-size: 10px; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 6px;
-}
-.field input, .field select, .field textarea {
-  width: 100%; background: var(--surf); border: 1.5px solid var(--bdr);
-  color: var(--text); font-family: var(--font); font-size: 14px;
-  padding: 11px 14px; border-radius: 10px; outline: none; transition: border-color .15s;
-  -webkit-appearance: none;
-}
-.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); }
-.field select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235d7fa3' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 13px center;
-}
-.field textarea { resize: none; height: 64px; font-size: 13px; }
-.field input::placeholder { color: var(--muted); font-size: 13px; }
+/* ── Stats ── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--card);border:1px solid var(--bdr);border-radius:11px;padding:12px 8px;text-align:center}
+.stat-n{font-size:24px;font-weight:700;line-height:1}
+.stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+.g{color:var(--accent)}.b{color:var(--blue)}.gd{color:var(--gold)}
 
-/* Phone lookup */
-.phone-wrap { position: relative; }
-.phone-wrap input { padding-right: 40px; }
-.ph-clear {
-  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  color: var(--muted); cursor: pointer; font-size: 18px; display: none;
-  background: none; border: none; line-height: 1;
-}
-.sugg-list {
-  display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0; z-index: 80;
-  background: var(--card); border: 1px solid var(--bdr); border-radius: 11px;
-  max-height: 230px; overflow-y: auto;
-  box-shadow: 0 12px 40px rgba(0,0,0,.5);
-}
-.sugg-list.open { display: block; }
-.sugg-item {
-  padding: 11px 14px; cursor: pointer; border-bottom: 1px solid var(--bdr);
-  transition: background .1s;
-}
-.sugg-item:last-child { border-bottom: none; }
-.sugg-item:active { background: rgba(56,189,248,.08); }
-.si-phone { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--blue); }
-.si-name  { font-size: 12px; color: var(--text); margin-top: 2px; }
-.si-acc   { font-family: var(--mono); font-size: 10px; color: var(--accent); margin-top: 1px; }
-.si-area  { font-size: 10px; color: var(--muted); }
+/* ── Visit log ── */
+.vcnt{display:none;align-items:center;gap:8px;margin-bottom:10px}
+.vcnt-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.5s infinite}
+.vcnt-txt{font-size:12px;color:var(--accent);font-weight:600}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.visit{background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--bdr);
+  border-radius:var(--r);padding:13px 14px;margin-bottom:9px;
+  display:flex;align-items:flex-start;justify-content:space-between;animation:slideup .2s ease}
+.visit.c{border-left-color:var(--accent)}.visit.p{border-left-color:var(--gold)}.visit.i{border-left-color:var(--red)}
+.v-acc{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent)}
+.v-mob{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:6px}
+.v-name{font-size:12px;color:var(--text);margin:2px 0}
+.v-out{font-size:12px;font-weight:600;margin-top:3px}
+.v-rem{font-size:11px;color:var(--muted);font-style:italic;margin-top:2px}
+.v-time{font-size:10px;color:var(--muted);margin-top:4px}
+.v-del{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding-left:8px;flex-shrink:0;line-height:1}
+.v-del:hover{color:var(--red)}
+.empty{text-align:center;padding:36px 20px;color:var(--muted);font-size:13px}
+.empty-ic{font-size:38px;opacity:.3;margin-bottom:10px}
 
-.autofill {
-  margin-top: 8px; padding: 14px 16px;
-  background: rgba(0,212,160,.07); border: 2px solid rgba(0,212,160,.3);
-  border-radius: 12px; display: none; animation: up .15s ease;
-}
-.af-main { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,212,160,.15); }
-.af-acc-no { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: 1px; line-height: 1; }
-.af-cust-name { font-size: 17px; font-weight: 600; color: var(--text); margin-top: 5px; }
-.af-sub { display: flex; gap: 16px; flex-wrap: wrap; }
-.af-row { display: flex; align-items: center; gap: 5px; }
-.af-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
-.af-val { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--muted); }
-.af-txt { font-size: 11px; color: var(--muted); }
+/* ── Bottom bar ── */
+.bbar{position:fixed;bottom:0;left:0;right:0;max-width:460px;margin:0 auto;
+  padding:10px 14px 18px;background:linear-gradient(to top,var(--bg) 65%,transparent);
+  display:flex;gap:8px;z-index:50}
+.btn-rst{flex:0 0 48px;height:48px;border-radius:11px;background:var(--card);
+  border:1.5px solid var(--bdr);color:var(--muted);font-size:18px;cursor:pointer}
+.btn-rst:hover{border-color:var(--red);color:var(--red)}
+.btn-xl{flex:1;height:48px;border-radius:11px;
+  background:linear-gradient(135deg,var(--blue),#0284c7);
+  border:none;color:white;font-family:var(--font);font-size:13px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+  box-shadow:0 4px 20px rgba(56,189,248,.22)}
+.btn-xl:active{transform:scale(.97)}.btn-xl:disabled{opacity:.35;cursor:not-allowed}
+.btn-wa{flex:0 0 48px;height:48px;border-radius:11px;background:#25d366;border:none;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 4px 16px rgba(37,211,102,.22)}
+.btn-wa:active{transform:scale(.97)}
 
-.btn-add {
-  width: 100%; padding: 14px;
-  background: linear-gradient(135deg, var(--accent), #00a87c);
-  border: none; border-radius: 11px;
-  color: #09111e; font-family: var(--font); font-size: 15px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 4px 20px rgba(0,212,160,.2); transition: transform .1s;
-}
-.btn-add:active { transform: scale(.97); }
-
-.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-.stat  { background: var(--card); border: 1px solid var(--bdr); border-radius: 11px; padding: 12px 8px; text-align: center; }
-.stat-n { font-size: 24px; font-weight: 700; line-height: 1; }
-.stat-l { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-top: 3px; }
-.g { color: var(--accent); } .b { color: var(--blue); } .gd { color: var(--gold); }
-
-.vcnt { display: none; align-items: center; gap: 8px; margin-bottom: 10px; }
-.vcnt-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s infinite; }
-.vcnt-txt { font-size: 12px; color: var(--accent); font-weight: 600; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.5)} }
-
-.visit {
-  background: var(--card); border: 1px solid var(--bdr); border-left: 3px solid var(--bdr);
-  border-radius: var(--r); padding: 13px 14px; margin-bottom: 9px;
-  display: flex; align-items: flex-start; justify-content: space-between;
-  animation: up .2s ease;
-}
-.visit.c { border-left-color: var(--accent); }
-.visit.p { border-left-color: var(--gold); }
-.visit.i { border-left-color: var(--red); }
-@keyframes up { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-
-.v-acc  { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--blue); }
-.v-mob  { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-left: 6px; }
-.v-name { font-size: 12px; color: var(--text); margin: 2px 0; }
-.v-area { font-size: 10px; color: var(--muted); }
-.v-out  { font-size: 12px; font-weight: 600; margin-top: 3px; }
-.v-rem  { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 2px; }
-.v-time { font-size: 10px; color: var(--muted); margin-top: 4px; }
-.v-del  { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding-left: 8px; flex-shrink: 0; line-height: 1; }
-.v-del:hover { color: var(--red); }
-
-.empty { text-align: center; padding: 36px 20px; color: var(--muted); font-size: 13px; }
-.empty-ic { font-size: 38px; opacity: .3; margin-bottom: 10px; }
-
-.bbar {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  max-width: 460px; margin: 0 auto;
-  padding: 10px 14px 18px;
-  background: linear-gradient(to top, var(--bg) 65%, transparent);
-  display: flex; gap: 8px; z-index: 50;
-}
-.btn-rst {
-  flex: 0 0 48px; height: 48px; border-radius: 11px;
-  background: var(--card); border: 1.5px solid var(--bdr);
-  color: var(--muted); font-size: 18px; cursor: pointer;
-}
-.btn-rst:hover { border-color: var(--red); color: var(--red); }
-.btn-xl {
-  flex: 1; height: 48px; border-radius: 11px;
-  background: linear-gradient(135deg, var(--blue), #0284c7);
-  border: none; color: white; font-family: var(--font); font-size: 13px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
-  box-shadow: 0 4px 20px rgba(56,189,248,.22);
-}
-.btn-xl:active { transform: scale(.97); }
-.btn-xl:disabled { opacity: .35; cursor: not-allowed; }
-.btn-wa {
-  flex: 0 0 48px; height: 48px; border-radius: 11px;
-  background: #25d366; border: none;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; box-shadow: 0 4px 16px rgba(37,211,102,.22);
-}
-.btn-wa:active { transform: scale(.97); }
-
-.toast {
-  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-  padding: 9px 20px; border-radius: 30px;
-  font-weight: 700; font-size: 13px; white-space: nowrap;
-  opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 100;
-}
-.toast.show { opacity: 1; }
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: var(--bdr); border-radius: 4px; }
+/* ── Toast ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  padding:9px 20px;border-radius:30px;font-weight:700;font-size:13px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .25s;z-index:100}
+.toast.show{opacity:1}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:4px}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     NAME PICKER SCREEN
-══════════════════════════════════════ -->
+<!-- ── Name Picker ── -->
 <div class="picker-screen" id="pickerScreen" style="display:none">
   <div class="picker-top">
     <div class="picker-logo">VOA</div>
     <div class="picker-title">VOA Field App</div>
     <div class="picker-sub">Router Recovery — Executive App<br>Tap your name to get started</div>
   </div>
-
   <div class="picker-label">Select Your Name</div>
-
-  <div class="name-grid" id="nameGrid">
-    <!-- Populated by JS -->
-  </div>
-
+  <div class="name-grid" id="nameGrid"></div>
   <div class="other-wrap">
     <div class="other-label">— Not in the list? —</div>
     <div class="other-row">
-      <input class="other-input" id="otherName" placeholder="Type your name..." autocapitalize="words" autocomplete="off">
+      <input class="other-input" id="otherName" placeholder="Type your name..." autocapitalize="words">
       <button class="other-go" onclick="goOther()">→</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     MAIN APP
-══════════════════════════════════════ -->
+<!-- ── Main App ── -->
 <div class="app" id="mainApp" style="display:none">
 
   <div class="hdr">
     <div class="logo">
       <div class="logo-ic">VOA</div>
-      <div>
-        <div class="logo-title">VOA Field</div>
-        <div class="logo-sub">Executive App</div>
-      </div>
+      <div><div class="logo-title">VOA Field</div><div class="logo-sub">Executive App</div></div>
     </div>
     <div class="hdr-right">
       <div class="hdr-date" id="hdrDate"></div>
-      <div class="exec-pill" id="execPill" onclick="switchUser()" title="Switch executive">
-        <span id="execName"></span>
-        <span class="switch-ic">⇄</span>
+      <div class="exec-pill" onclick="switchUser()">
+        <span id="execName"></span>&nbsp;⇄
       </div>
     </div>
   </div>
 
-  <!-- Upload Sheet -->
+  <!-- Upload -->
   <div class="sec">
     <div class="sec-title">Allotted Accounts Sheet</div>
     <div id="uploadZone" class="upload-zone" onclick="document.getElementById('fileIn').click()"
          ondragover="event.preventDefault()" ondrop="onDrop(event)">
       <input type="file" id="fileIn" accept=".xlsx,.xls,.csv" onchange="loadFile(this.files[0])">
       <div class="upload-icon">📂</div>
-      <div class="upload-text">
-        <b>Tap here to upload</b> your allotted sheet<br>
-        <span style="font-size:11px">Excel (.xlsx / .xls) or CSV</span>
-      </div>
+      <div class="upload-text"><b>Tap to upload</b> your allotted sheet<br>
+        <span style="font-size:11px">Excel (.xlsx / .xls) or CSV</span></div>
     </div>
     <div id="uploadDone" class="upload-done" style="display:none">
       <div class="ud-icon">✅</div>
-      <div>
-        <div class="ud-name" id="udName">—</div>
-        <div class="ud-count" id="udCount">—</div>
-      </div>
+      <div><div class="ud-name" id="udName">—</div><div class="ud-count" id="udCount">—</div></div>
       <div class="ud-change" onclick="resetFile()">Change</div>
     </div>
   </div>
@@ -410,28 +258,51 @@ body::before {
     <div class="sec-title">Log a Visit</div>
     <div class="card">
 
+      <!-- Account Number dropdown search -->
       <div class="field">
-        <label>📞 Mobile Number</label>
-        <div class="phone-wrap">
-          <input type="tel" id="phoneIn" placeholder="Type mobile number to search..."
-                 oninput="onPhone(this.value)" autocomplete="off" maxlength="10" inputmode="numeric">
-          <button class="ph-clear" id="phClear" onclick="clearPhone()">×</button>
-          <div class="sugg-list" id="suggList"></div>
+        <label>
+          🔢 Account Number
+          <span class="acc-badge" id="accBadge"></span>
+        </label>
+        <div class="acc-search-wrap" id="accWrap">
+          <input type="text" class="acc-search-input" id="accSearch"
+            placeholder="Tap to select or type account number..."
+            oninput="onAccInput(this.value)"
+            onfocus="onAccFocus()"
+            autocomplete="off" inputmode="numeric">
+          <button class="acc-search-clear" id="accClear" onclick="clearAcc()">×</button>
+          <div class="acc-dropdown" id="accDropdown"></div>
         </div>
+
+        <!-- Duplicate warning -->
+        <div class="dup-warn" id="dupWarn"></div>
+
+        <!-- Auto-populated details card -->
         <div class="autofill" id="autofill">
-          <!-- Big Acc No + Name -->
-          <div class="af-main">
-            <div class="af-acc-no" id="afAcc">—</div>
-            <div class="af-cust-name" id="afName">—</div>
+          <div class="af-accno" id="afAccNo">—</div>
+          <div class="af-custname" id="afCustName">—</div>
+          <div id="afAddrBlock" style="display:none">
+            <div class="af-addr-lbl">Address</div>
+            <div class="af-addr-val" id="afAddr">—</div>
           </div>
-          <!-- Small details below -->
-          <div class="af-sub">
-            <div class="af-row"><span class="af-lbl">Area:</span><span class="af-val" id="afArea">—</span></div>
-            <div class="af-row"><span class="af-lbl">Batch:</span><span class="af-val" id="afBatch">—</span></div>
+          <div class="af-row-grid">
+            <div class="af-item">
+              <div class="af-lbl">Mobile</div>
+              <div class="af-val" id="afMobile">—</div>
+            </div>
+            <div class="af-item">
+              <div class="af-lbl">Area</div>
+              <div class="af-val" id="afArea">—</div>
+            </div>
+            <div class="af-item">
+              <div class="af-lbl">Batch</div>
+              <div class="af-val" id="afBatch">—</div>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- Outcome -->
       <div class="field">
         <label>▼ Visit Outcome</label>
         <select id="outcome">
@@ -449,14 +320,13 @@ body::before {
         </select>
       </div>
 
+      <!-- Remarks -->
       <div class="field">
         <label>Remarks (optional)</label>
-        <textarea id="remarks" placeholder="New date, address, any notes..."></textarea>
+        <textarea id="remarks" placeholder="New date, address, notes..."></textarea>
       </div>
 
-      <button class="btn-add" onclick="addVisit()">
-        <span style="font-size:18px">＋</span> Add Visit
-      </button>
+      <button class="btn-add" onclick="addVisit()">＋ Add Visit</button>
     </div>
   </div>
 
@@ -472,432 +342,439 @@ body::before {
   <!-- Visit Log -->
   <div class="sec">
     <div class="sec-title">Today's Visits</div>
-    <div class="vcnt" id="vcnt">
-      <div class="vcnt-dot"></div>
-      <div class="vcnt-txt" id="vcntTxt"></div>
-    </div>
+    <div class="vcnt" id="vcnt"><div class="vcnt-dot"></div><div class="vcnt-txt" id="vcntTxt"></div></div>
     <div id="visitLog"></div>
   </div>
-
 </div>
 
-<!-- Bottom Bar -->
+<!-- Bottom bar -->
 <div class="bbar" id="bbar" style="display:none">
-  <button class="btn-rst" onclick="confirmReset()" title="Clear all">🗑</button>
-  <button class="btn-xl" id="btnXl" onclick="genExcel()" disabled>📊 Generate Excel</button>
-  <button class="btn-wa" onclick="sendWA()" title="WhatsApp">
+  <button class="btn-rst" onclick="confirmReset()">🗑</button>
+  <button class="btn-xl" id="btnXl" onclick="genAndShare()" disabled>📊 Send Report</button>
+  <button class="btn-wa" onclick="sendWA()">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
     </svg>
   </button>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════
-// EXECUTIVES LIST — Edit names here
-// ═══════════════════════════════════════════════════
+// ══ EXECUTIVES ══════════════════════════════════════════════════
 const EXECUTIVES = [
-  { name: 'Gawtham',  role: 'Field Manager', emoji: '👑' },
-  { name: 'Suresh',   role: 'Executive',     emoji: '🏍️' },
-  { name: 'Santhosh', role: 'Executive',     emoji: '🏍️' },
-  { name: 'Nandha',   role: 'Executive',     emoji: '🏍️' },
-  { name: 'Mano',     role: 'Executive',     emoji: '🏍️' },
-  { name: 'Ganesh',   role: 'Executive',     emoji: '🏍️' },
+  {name:'Gawtham', role:'Field Manager', emoji:'👑'},
+  {name:'Suresh',  role:'Executive',     emoji:'🏍️'},
+  {name:'Santhosh',role:'Executive',     emoji:'🏍️'},
+  {name:'Nandha',  role:'Executive',     emoji:'🏍️'},
+  {name:'Mano',    role:'Executive',     emoji:'🏍️'},
+  {name:'Ganesh',  role:'Executive',     emoji:'🏍️'},
 ];
 
-// ═══════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════
-let EXEC     = '';
-let accounts = [];
-let visits   = [];
-let picked   = null;
+// ══ STATE ════════════════════════════════════════════════════════
+let EXEC='', accounts=[], visits=[], picked=null;
 
-// ═══════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════
-(function init() {
+// ══ INIT ═════════════════════════════════════════════════════════
+(function(){
   document.getElementById('hdrDate').textContent =
-    new Date().toLocaleDateString('en-GB', { weekday:'short', day:'2-digit', month:'short' });
+    new Date().toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'});
 
-  // URL param support (optional, for direct links)
-  const urlExec = new URLSearchParams(window.location.search).get('exec');
-  if (urlExec && urlExec.trim()) {
-    startSession(decodeURIComponent(urlExec.trim()));
-    return;
-  }
+  const urlExec=new URLSearchParams(window.location.search).get('exec');
+  if(urlExec&&urlExec.trim()){startSession(decodeURIComponent(urlExec.trim()));return;}
 
-  // Check if already logged in today
-  const savedExec = localStorage.getItem('voa_exec');
-  const savedDate = localStorage.getItem('voa_date');
-  const today     = todayStr();
-
-  if (savedExec && savedDate === today) {
-    // Same day — resume session
-    startSession(savedExec, true);
+  const savedExec=localStorage.getItem('voa_exec');
+  const savedDate=localStorage.getItem('voa_date');
+  if(savedExec && savedDate===todayStr()){
+    startSession(savedExec,true);
   } else {
-    // New day or first time — show picker
     buildPicker();
-    document.getElementById('pickerScreen').style.display = 'flex';
+    document.getElementById('pickerScreen').style.display='flex';
   }
 })();
 
-function todayStr() {
-  return new Date().toLocaleDateString('en-GB');
-}
+function todayStr(){return new Date().toLocaleDateString('en-GB');}
 
-function buildPicker() {
-  const grid = document.getElementById('nameGrid');
-  grid.innerHTML = EXECUTIVES.map((ex, i) => `
+function buildPicker(){
+  document.getElementById('nameGrid').innerHTML=EXECUTIVES.map((ex,i)=>`
     <div class="name-btn" onclick="selectExec('${ex.name}')">
-      <div class="nb-avatar av-${i % 8}">${ex.emoji}</div>
+      <div class="nb-avatar av-${i%6}">${ex.emoji}</div>
       <div class="nb-name">${ex.name}</div>
       <div class="nb-role">${ex.role}</div>
     </div>`).join('');
 }
 
-function selectExec(name) {
-  startSession(name);
-}
-
-function goOther() {
-  const n = document.getElementById('otherName').value.trim();
-  if (!n) { showToast('Enter your name', 'red'); return; }
+function selectExec(name){startSession(name);}
+function goOther(){
+  const n=document.getElementById('otherName').value.trim();
+  if(!n){showToast('Enter your name','red');return;}
   startSession(n);
 }
 
-function startSession(name, resume = false) {
-  EXEC = name;
-  localStorage.setItem('voa_exec', name);
-  localStorage.setItem('voa_date', todayStr());
+function startSession(name,resume=false){
+  EXEC=name;
+  localStorage.setItem('voa_exec',name);
+  localStorage.setItem('voa_date',todayStr());
+  document.getElementById('execName').textContent=name;
 
-  document.getElementById('execName').textContent = name;
-  document.getElementById('execPill').title = 'Tap to switch user';
+  visits=resume?JSON.parse(localStorage.getItem('voa_visits')||'[]'):[];
+  if(!resume) localStorage.setItem('voa_visits',JSON.stringify([]));
 
-  // Load visits (only today's)
-  const savedDate = localStorage.getItem('voa_date');
-  if (resume) {
-    visits = JSON.parse(localStorage.getItem('voa_visits') || '[]');
-  } else {
-    // New exec or new day — fresh visits
-    visits = [];
-    localStorage.setItem('voa_visits', JSON.stringify([]));
-  }
+  const acc=localStorage.getItem('voa_accounts');
+  if(acc){accounts=JSON.parse(acc);showUploadDone('(previously loaded)',accounts.length);updateBadge();}
 
-  // Load saved accounts
-  const acc = localStorage.getItem('voa_accounts');
-  if (acc) {
-    accounts = JSON.parse(acc);
-    showUploadDone('(previously loaded)', accounts.length);
-  }
-
-  document.getElementById('pickerScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display      = 'block';
-  document.getElementById('bbar').style.display         = 'flex';
-
+  document.getElementById('pickerScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  document.getElementById('bbar').style.display='flex';
   render();
 }
 
-function switchUser() {
-  if (!confirm('Switch to a different executive?\nYour current visits will be saved.')) return;
-  // Save current visits before switching
-  localStorage.setItem('voa_visits', JSON.stringify(visits));
-  // Clear exec so picker shows
-  localStorage.removeItem('voa_exec');
-  localStorage.removeItem('voa_date');
-  EXEC   = '';
-  visits = [];
-  picked = null;
-  clearPhone();
-  document.getElementById('outcome').value = '';
-  document.getElementById('remarks').value = '';
+function switchUser(){
+  if(!confirm('Switch executive?\nCurrent visits are saved.')) return;
+  localStorage.removeItem('voa_exec');localStorage.removeItem('voa_date');
+  EXEC='';visits=[];picked=null;
+  clearAcc();
+  document.getElementById('outcome').value='';
+  document.getElementById('remarks').value='';
   buildPicker();
-  document.getElementById('pickerScreen').style.display = 'flex';
-  document.getElementById('mainApp').style.display      = 'none';
-  document.getElementById('bbar').style.display         = 'none';
+  document.getElementById('pickerScreen').style.display='flex';
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('bbar').style.display='none';
 }
 
-// ═══════════════════════════════════════════════════
-// FILE LOAD
-// ═══════════════════════════════════════════════════
-function onDrop(e) {
-  e.preventDefault();
-  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
-}
+// ══ FILE LOAD ════════════════════════════════════════════════════
+function onDrop(e){e.preventDefault();if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0]);}
 
-function loadFile(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const wb   = XLSX.read(ev.target.result, { type: 'array' });
-      const ws   = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-      if (!rows.length) { showToast('Sheet is empty', 'red'); return; }
+function loadFile(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!rows.length){showToast('Sheet is empty','red');return;}
 
-      const keys = Object.keys(rows[0]);
-      const find = (...opts) => keys.find(k => opts.some(o => k.toLowerCase().replace(/[\s_\-]/g,'').includes(o))) || null;
+      const keys=Object.keys(rows[0]);
+      const find=(...opts)=>keys.find(k=>opts.some(o=>k.toLowerCase().replace(/[\s_\-]/g,'').includes(o)))||null;
 
-      const kMob  = find('mobile','phone','mob','contact','phno');
-      const kAcc  = find('accountno','accno','account','acno');
-      const kName = find('customer','custname','name','cust');
-      const kArea = find('area','city','location','place');
-      const kBatch= find('batch','batchno');
+      const kAcc =find('accountno','accno','account','acno','acc');
+      const kName=find('customer','custname','name','cust');
+      const kMob =find('mobile','phone','mob','contact','phno');
+      const kArea=find('area','city','location','place');
+      const kBat =find('batch','batchno');
+      const kAddr=find('address','addr','add1','address1');
 
-      accounts = rows.map(r => ({
-        accNo:  String(r[kAcc]  || '').trim(),
-        name:   String(r[kName] || '').trim(),
-        mobile: String(r[kMob]  || '').trim().replace(/\D/g,''),
-        area:   String(r[kArea] || '').trim(),
-        batch:  String(r[kBatch]|| '').trim(),
-      })).filter(a => a.mobile || a.accNo);
+      accounts=rows.map(r=>({
+        accNo:  String(r[kAcc] ||'').trim(),
+        name:   String(r[kName]||'').trim(),
+        mobile: String(r[kMob] ||'').trim().replace(/[^\d]/g,''),
+        area:   String(r[kArea]||'').trim(),
+        batch:  String(r[kBat] ||'').trim(),
+        address:kAddr?String(r[kAddr]||'').trim():'',
+      })).filter(a=>a.accNo);
 
-      localStorage.setItem('voa_accounts', JSON.stringify(accounts));
-      showUploadDone(file.name, accounts.length);
-      showToast(`✓ ${accounts.length} accounts loaded!`);
-    } catch {
-      showToast('Could not read file', 'red');
-    }
+      localStorage.setItem('voa_accounts',JSON.stringify(accounts));
+      showUploadDone(file.name,accounts.length);
+      updateBadge();
+      showToast('✓ '+accounts.length+' accounts loaded!');
+    }catch(e){showToast('Could not read file — check format','red');}
   };
   reader.readAsArrayBuffer(file);
 }
 
-function showUploadDone(fname, count) {
-  document.getElementById('uploadZone').style.display = 'none';
-  document.getElementById('uploadDone').style.display = 'flex';
-  document.getElementById('udName').textContent  = fname;
-  document.getElementById('udCount').textContent = `${count} account${count !== 1 ? 's' : ''} loaded`;
+function showUploadDone(fname,count){
+  document.getElementById('uploadZone').style.display='none';
+  document.getElementById('uploadDone').style.display='flex';
+  document.getElementById('udName').textContent=fname;
+  document.getElementById('udCount').textContent=count+' account'+(count!==1?'s':'')+' loaded — tap Account Number field to browse';
 }
 
-function resetFile() {
-  accounts = [];
-  localStorage.removeItem('voa_accounts');
-  document.getElementById('uploadZone').style.display = 'block';
-  document.getElementById('uploadDone').style.display = 'none';
-  document.getElementById('fileIn').value = '';
-  clearPhone();
+function resetFile(){
+  accounts=[];localStorage.removeItem('voa_accounts');
+  document.getElementById('uploadZone').style.display='block';
+  document.getElementById('uploadDone').style.display='none';
+  document.getElementById('fileIn').value='';
+  updateBadge();clearAcc();
 }
 
-// ═══════════════════════════════════════════════════
-// PHONE LOOKUP
-// ═══════════════════════════════════════════════════
-function onPhone(val) {
-  const q = val.replace(/\D/g,'');
-  document.getElementById('phClear').style.display = q ? 'block' : 'none';
-  if (!q) { clearAutofill(); hideSugg(); return; }
-
-  const exact = accounts.find(a => a.mobile === q);
-  if (exact) { pickAccount(exact); hideSugg(); return; }
-
-  if (!accounts.length) { clearAutofill(); return; }
-
-  const hits = accounts.filter(a => a.mobile.includes(q) || a.accNo.toLowerCase().includes(q.toLowerCase())).slice(0,8);
-  if (!hits.length) { clearAutofill(); hideSugg(); return; }
-
-  const sg = document.getElementById('suggList');
-  sg.innerHTML = hits.map(a => `
-    <div class="sugg-item" onclick='pickAccount(${JSON.stringify(a).replace(/'/g,"&#39;")})'>
-      <div class="si-phone">${hl(a.mobile, q)}</div>
-      <div class="si-name">${a.name}</div>
-      <div class="si-acc">${a.accNo} <span class="si-area">${a.area ? '· '+a.area : ''}</span></div>
-    </div>`).join('');
-  sg.classList.add('open');
+function updateBadge(){
+  const b=document.getElementById('accBadge');
+  if(accounts.length>0){b.textContent=accounts.length+' accounts';b.style.display='inline';}
+  else b.style.display='none';
 }
 
-function hl(str, q) {
-  const i = str.indexOf(q);
-  if (i < 0) return str;
-  return str.slice(0,i) + `<b style="color:var(--blue)">${str.slice(i,i+q.length)}</b>` + str.slice(i+q.length);
+// ══ ACCOUNT SEARCH DROPDOWN ══════════════════════════════════════
+function onAccFocus(){
+  // Show all accounts when tapped empty
+  const val=document.getElementById('accSearch').value.trim();
+  if(!val && accounts.length>0) renderDropdown(accounts.slice(0,50),'',accounts.length>50);
 }
 
-function pickAccount(acc) {
-  if (typeof acc === 'string') acc = JSON.parse(acc);
-  picked = acc;
-  document.getElementById('phoneIn').value = acc.mobile;
-  document.getElementById('phClear').style.display = 'block';
-  hideSugg();
-  document.getElementById('afAcc').textContent   = acc.accNo  || '—';
-  document.getElementById('afName').textContent  = acc.name   || '—';
-  document.getElementById('afArea').textContent  = acc.area   || '—';
-  document.getElementById('afBatch').textContent = acc.batch  || '—';
-  document.getElementById('autofill').style.display = 'block';
+function onAccInput(val){
+  const q=val.trim();
+  document.getElementById('accClear').style.display=q?'block':'none';
+  document.getElementById('dupWarn').style.display='none';
+
+  if(!q){clearAutofill();hideDropdown();return;}
+
+  if(!accounts.length){clearAutofill();return;}
+
+  // Search by account no OR name
+  const hits=accounts.filter(a=>
+    a.accNo.toLowerCase().includes(q.toLowerCase())||
+    a.name.toLowerCase().includes(q.toLowerCase())
+  ).slice(0,20);
+
+  if(!hits.length){clearAutofill();hideDropdown();return;}
+  renderDropdown(hits,q,false);
 }
 
-function clearAutofill() {
-  picked = null;
-  document.getElementById('autofill').style.display = 'none';
+function renderDropdown(hits,q,showMore){
+  const dd=document.getElementById('accDropdown');
+  dd.innerHTML=hits.map(a=>{
+    const accHl=q?hl(a.accNo,q):a.accNo;
+    const nmHl =q?hl(a.name,q):a.name;
+    const dupMark=visits.find(v=>v.accNo===a.accNo)?
+      ' <span style="font-size:9px;background:rgba(251,76,106,.2);color:var(--red);padding:1px 6px;border-radius:8px">logged</span>':'';
+    return `<div class="acc-item" onclick='pickAcc(${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+      <div class="acc-item-no">${accHl}${dupMark}</div>
+      <div class="acc-item-name">${nmHl}</div>
+      <div class="acc-item-area">${a.mobile?'📞 '+a.mobile:''} ${a.area?'· 📍 '+a.area:''}</div>
+    </div>`;
+  }).join('');
+  if(showMore) dd.innerHTML+=`<div class="acc-footer">Showing 50 of ${accounts.length} — type to search</div>`;
+  dd.classList.add('open');
 }
 
-function clearPhone() {
-  document.getElementById('phoneIn').value = '';
-  document.getElementById('phClear').style.display = 'none';
-  hideSugg(); clearAutofill();
+function hl(str,q){
+  if(!q||!str)return str;
+  const i=str.toLowerCase().indexOf(q.toLowerCase());
+  if(i<0)return str;
+  return str.slice(0,i)+'<b style="color:var(--accent)">'+str.slice(i,i+q.length)+'</b>'+str.slice(i+q.length);
 }
 
-function hideSugg() { document.getElementById('suggList').classList.remove('open'); }
-document.addEventListener('click', e => { if (!e.target.closest('.phone-wrap')) hideSugg(); });
+function pickAcc(acc){
+  if(typeof acc==='string') acc=JSON.parse(acc);
+  picked=acc;
+  document.getElementById('accSearch').value=acc.accNo;
+  document.getElementById('accClear').style.display='block';
+  hideDropdown();
 
-// ═══════════════════════════════════════════════════
-// ADD VISIT
-// ═══════════════════════════════════════════════════
-function addVisit() {
-  const phone   = document.getElementById('phoneIn').value.replace(/\D/g,'');
-  const outcome = document.getElementById('outcome').value;
-  const remarks = document.getElementById('remarks').value.trim();
+  // Populate autofill card
+  document.getElementById('afAccNo').textContent   =acc.accNo ||'—';
+  document.getElementById('afCustName').textContent=acc.name  ||'—';
+  document.getElementById('afMobile').textContent  =acc.mobile||'—';
+  document.getElementById('afArea').textContent    =acc.area  ||'—';
+  document.getElementById('afBatch').textContent   =acc.batch ||'—';
 
-  if (!outcome) { showToast('⚠ Select visit outcome', 'red'); return; }
-  if (!phone && !picked) { showToast('⚠ Enter mobile number', 'red'); return; }
+  const addrBlock=document.getElementById('afAddrBlock');
+  if(acc.address){
+    document.getElementById('afAddr').textContent=acc.address;
+    addrBlock.style.display='block';
+  } else {
+    addrBlock.style.display='none';
+  }
+  document.getElementById('autofill').style.display='block';
 
-  const acc = picked || accounts.find(a => a.mobile === phone) || {};
-  const now = new Date();
+  // Check duplicate
+  const dup=visits.find(v=>v.accNo===acc.accNo);
+  const warn=document.getElementById('dupWarn');
+  if(dup){
+    warn.textContent='⚠ Already logged today as "'+dup.outcome+'" at '+dup.time;
+    warn.style.display='block';
+  } else {
+    warn.style.display='none';
+  }
+}
 
+function clearAutofill(){
+  picked=null;
+  document.getElementById('autofill').style.display='none';
+  document.getElementById('dupWarn').style.display='none';
+}
+
+function clearAcc(){
+  document.getElementById('accSearch').value='';
+  document.getElementById('accClear').style.display='none';
+  hideDropdown();clearAutofill();
+}
+
+function hideDropdown(){document.getElementById('accDropdown').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#accWrap'))hideDropdown();});
+
+// ══ ADD VISIT ════════════════════════════════════════════════════
+function addVisit(){
+  const outcome=document.getElementById('outcome').value;
+  const remarks=document.getElementById('remarks').value.trim();
+
+  if(!picked){showToast('⚠ Select an account number','red');return;}
+  if(!outcome){showToast('⚠ Select visit outcome','red');return;}
+
+  // Duplicate check
+  const dup=visits.find(v=>v.accNo===picked.accNo);
+  if(dup){
+    if(!confirm('⚠ "'+picked.accNo+'" already logged today as:\n"'+dup.outcome+'"\n\nAdd another entry anyway?')) return;
+  }
+
+  const now=new Date();
   visits.push({
-    id:      Date.now(),
-    exec:    EXEC,
-    accNo:   acc.accNo  || '',
-    name:    acc.name   || '',
-    mobile:  phone      || acc.mobile || '',
-    area:    acc.area   || '',
-    batch:   acc.batch  || '',
+    id:Date.now(), exec:EXEC,
+    accNo:picked.accNo, name:picked.name,
+    mobile:picked.mobile, area:picked.area,
+    batch:picked.batch, address:picked.address||'',
     outcome, remarks,
-    time: now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
-    date: now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
+    time:now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
+    date:now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),
   });
 
-  localStorage.setItem('voa_visits', JSON.stringify(visits));
-  clearPhone();
-  document.getElementById('outcome').value = '';
-  document.getElementById('remarks').value = '';
-  document.getElementById('phoneIn').focus();
+  localStorage.setItem('voa_visits',JSON.stringify(visits));
+  clearAcc();
+  document.getElementById('outcome').value='';
+  document.getElementById('remarks').value='';
+  document.getElementById('accSearch').focus();
   showToast('✓ Visit logged!');
   render();
 }
 
-// ═══════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════
-function render() {
-  const total = visits.length;
-  const coll  = visits.filter(v => v.outcome==='Collected'||v.outcome==='Already Collected').length;
+// ══ RENDER ═══════════════════════════════════════════════════════
+function render(){
+  const total=visits.length;
+  const coll=visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected').length;
+  document.getElementById('sTotal').textContent=total;
+  document.getElementById('sColl').textContent=coll;
+  document.getElementById('sPend').textContent=total-coll;
+  document.getElementById('btnXl').disabled=total===0;
 
-  document.getElementById('sTotal').textContent = total;
-  document.getElementById('sColl').textContent  = coll;
-  document.getElementById('sPend').textContent  = total - coll;
-  document.getElementById('btnXl').disabled     = total === 0;
+  document.getElementById('vcnt').style.display=total>0?'flex':'none';
+  document.getElementById('vcntTxt').textContent=total+' visit'+(total!==1?'s':'')+' logged today';
 
-  const vcnt = document.getElementById('vcnt');
-  vcnt.style.display = total > 0 ? 'flex' : 'none';
-  document.getElementById('vcntTxt').textContent = `${total} visit${total!==1?'s':''} logged today`;
-
-  const log = document.getElementById('visitLog');
-  if (!total) {
-    log.innerHTML = `<div class="empty"><div class="empty-ic">📋</div>No visits yet.<br>Upload your sheet and start logging.</div>`;
+  const log=document.getElementById('visitLog');
+  if(!total){
+    log.innerHTML='<div class="empty"><div class="empty-ic">📋</div>No visits yet.<br>Upload your sheet and start logging.</div>';
     return;
   }
 
-  const outColor = o => o==='Collected'||o==='Already Collected' ? 'var(--accent)'
-    : o==='Change of Address'||o==='Call Not Attended' ? 'var(--red)' : 'var(--gold)';
-  const cls = o => o==='Collected'||o==='Already Collected' ? 'c'
-    : o==='Change of Address'||o==='Call Not Attended' ? 'i' : 'p';
+  const oc=o=>o==='Collected'||o==='Already Collected'?'var(--accent)':
+    o==='Change of Address'||o==='Call Not Attended'?'var(--red)':'var(--gold)';
+  const cls=o=>o==='Collected'||o==='Already Collected'?'c':
+    o==='Change of Address'||o==='Call Not Attended'?'i':'p';
 
-  log.innerHTML = [...visits].reverse().map(v => `
+  log.innerHTML=[...visits].reverse().map(v=>`
     <div class="visit ${cls(v.outcome)}">
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:baseline">
           <span class="v-acc">${v.accNo||'—'}</span>
-          ${v.mobile?`<span class="v-mob">${v.mobile}</span>`:''}
+          ${v.mobile?'<span class="v-mob">'+v.mobile+'</span>':''}
         </div>
-        ${v.name?`<div class="v-name">${v.name}${v.area?` <span class="v-area">· ${v.area}</span>`:''}</div>`:''}
-        <div class="v-out" style="color:${outColor(v.outcome)}">${v.outcome}</div>
-        ${v.remarks?`<div class="v-rem">"${v.remarks}"</div>`:''}
+        ${v.name?'<div class="v-name">'+v.name+(v.area?' <span style="font-size:10px;color:var(--muted)">· '+v.area+'</span>':'')+'</div>':''}
+        <div class="v-out" style="color:${oc(v.outcome)}">${v.outcome}</div>
+        ${v.remarks?'<div class="v-rem">"'+v.remarks+'"</div>':''}
         <div class="v-time">${v.time} · ${v.exec}</div>
       </div>
       <button class="v-del" onclick="delVisit(${v.id})">×</button>
     </div>`).join('');
 }
 
-function delVisit(id) {
-  visits = visits.filter(v => v.id !== id);
-  localStorage.setItem('voa_visits', JSON.stringify(visits));
+function delVisit(id){
+  visits=visits.filter(v=>v.id!==id);
+  localStorage.setItem('voa_visits',JSON.stringify(visits));
   render();
 }
 
-// ═══════════════════════════════════════════════════
-// GENERATE EXCEL
-// ═══════════════════════════════════════════════════
-function genExcel() {
-  if (!visits.length) return;
-  const today = new Date().toLocaleDateString('en-GB',
-    { day:'2-digit', month:'short', year:'numeric' }).replace(/ /g,'-');
+// ══ GENERATE EXCEL + SEND TO WHATSAPP ════════════════════════════
+function genAndShare(){
+  if(!visits.length)return;
+  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).replace(/ /g,'-');
+  const fname='VOA_'+EXEC+'_'+today+'.xlsx';
 
-  const rows = [
+  // Build Excel
+  const rows=[
     ['VOA RECOVERY MASTER — EXECUTIVE VISIT FEEDBACK'],
-    [`Executive: ${EXEC}`, '', `Date: ${today}`],
+    ['Executive: '+EXEC,'','Date: '+today],
     [],
     ['Batch No.','Account No.','Customer Name','Mobile No.','Area','Executive Name','Visit Date','Visit Outcome','Collection Amount (₹)','Remarks']
   ];
-  visits.forEach(v => {
-    rows.push([v.batch, v.accNo, v.name, v.mobile, v.area, v.exec, today, v.outcome, '', v.remarks]);
-  });
+  visits.forEach(v=>rows.push([v.batch,v.accNo,v.name,v.mobile,v.area,v.exec,today,v.outcome,'',v.remarks]));
 
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:10},{wch:14},{wch:22},{wch:13},{wch:13},{wch:14},{wch:12},{wch:22},{wch:18},{wch:28}];
-  ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:9} }];
-  XLSX.utils.book_append_sheet(wb, ws, 'Visit_Feedback');
-  XLSX.writeFile(wb, `VOA_${EXEC}_${today}.xlsx`);
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:10},{wch:16},{wch:22},{wch:13},{wch:13},{wch:14},{wch:12},{wch:22},{wch:18},{wch:28}];
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:9}}];
+  XLSX.utils.book_append_sheet(wb,ws,'Visit_Feedback');
+
+  // ✅ Generate as blob to share
+  const wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+  const blob=new Blob([wbout],{type:'application/octet-stream'});
+
+  // Try native share (Android/iOS)
+  if(navigator.share && navigator.canShare){
+    const file=new File([blob],fname,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    if(navigator.canShare({files:[file]})){
+      navigator.share({
+        title:'VOA Field Report — '+EXEC,
+        text:buildWAText(),
+        files:[file]
+      }).then(()=>showToast('✓ Shared!'))
+        .catch(()=>fallbackDownload(wb,fname));
+      return;
+    }
+  }
+  // Fallback: download + open WhatsApp
+  fallbackDownload(wb,fname);
+}
+
+function fallbackDownload(wb,fname){
+  XLSX.writeFile(wb,fname);
   showToast('📊 Excel downloaded!');
-  setTimeout(() => showToast('📱 Now send on WhatsApp!'), 2400);
+  setTimeout(()=>{
+    showToast('Opening WhatsApp...');
+    setTimeout(()=>{
+      window.open('https://wa.me/?text='+encodeURIComponent(buildWAText()),'_blank');
+    },800);
+  },1500);
 }
 
-// ═══════════════════════════════════════════════════
-// WHATSAPP
-// ═══════════════════════════════════════════════════
-function sendWA() {
-  if (!visits.length) { showToast('No visits to send', 'red'); return; }
-  const today = new Date().toLocaleDateString('en-GB',{ day:'2-digit', month:'short', year:'numeric' });
-  const coll  = visits.filter(v => v.outcome==='Collected'||v.outcome==='Already Collected').length;
-
-  const lines = [
-    `*VOA Recovery — Field Report*`, '',
-    `👤 Executive: *${EXEC}*`,
-    `📅 Date: *${today}*`,
-    `📊 Total: *${visits.length}*  |  Collected: *${coll}*`, '',
-    `*Visit Summary:*`
+function buildWAText(){
+  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const coll=visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected').length;
+  const lines=[
+    '*VOA Recovery — Field Report* 📋','',
+    '👤 Executive: *'+EXEC+'*',
+    '📅 Date: *'+today+'*',
+    '📊 Total Visits: *'+visits.length+'*  |  Collected: *'+coll+'*','',
+    '*Visit Summary:*'
   ];
-  visits.forEach((v,i) => {
-    lines.push(`${i+1}. *${v.accNo||v.mobile}*${v.name?' — '+v.name:''} → ${v.outcome}${v.remarks?' ('+v.remarks+')':''}`);
+  visits.forEach((v,i)=>{
+    lines.push((i+1)+'. *'+v.accNo+'*'+(v.name?' ('+v.name+')':'')+' → '+v.outcome+(v.remarks?' — '+v.remarks:''));
   });
-  lines.push('', '_Excel file sent separately_');
-  window.open(`https://wa.me/?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
+  lines.push('','_Excel report attached_');
+  return lines.join('\n');
 }
 
-// ═══════════════════════════════════════════════════
-// RESET / TOAST / MISC
-// ═══════════════════════════════════════════════════
-function confirmReset() {
-  if (!visits.length) return;
-  if (confirm(`Clear all ${visits.length} visit(s)?\nMake sure you downloaded the Excel first.`)) {
-    visits = [];
-    localStorage.setItem('voa_visits', JSON.stringify(visits));
-    render();
-    showToast('Cleared ✓');
+// WhatsApp button = text summary only
+function sendWA(){
+  if(!visits.length){showToast('No visits to send','red');return;}
+  window.open('https://wa.me/?text='+encodeURIComponent(buildWAText()),'_blank');
+}
+
+// ══ RESET / TOAST ════════════════════════════════════════════════
+function confirmReset(){
+  if(!visits.length)return;
+  if(confirm('Clear all '+visits.length+' visit(s)?\nMake sure you sent the report first.')){
+    visits=[];localStorage.setItem('voa_visits',JSON.stringify(visits));render();showToast('Cleared ✓');
   }
 }
 
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent      = msg;
-  t.style.background = type==='red' ? 'var(--red)' : 'var(--accent)';
-  t.style.color      = type==='red' ? 'white' : '#09111e';
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=type==='red'?'var(--red)':'var(--accent)';
+  t.style.color=type==='red'?'white':'#09111e';
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2300);
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.activeElement.id === 'otherName') goOther();
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.activeElement.id==='otherName')goOther();
 });
 </script>
 </body>
