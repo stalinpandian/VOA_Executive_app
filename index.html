@@ -1024,6 +1024,58 @@ function prefillPending(p){
 
 
 
+// ══ ADMIN FILE LOAD ══════════════════════════════════════
+function onAdminDrop(e){
+  e.preventDefault();
+  if(e.dataTransfer.files[0]) loadAdminFile(e.dataTransfer.files[0]);
+}
+
+function loadAdminFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const wb   = XLSX.read(ev.target.result, {type:'array'});
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+      if(!rows.length){ showToast('File is empty','red'); return; }
+
+      const keys = Object.keys(rows[0]);
+      const find = (...opts) => keys.find(k =>
+        opts.some(o => k.toLowerCase().replace(/[\s_\-\.]/g,'').includes(o))
+      ) || null;
+
+      const kAcc  = find('accountno','accno','account');
+      const kName = find('name','custname','bname','customername');
+      const kMob  = find('mobile','phone','mob','phno','contact');
+      const kAddr = find('address','addr');
+      const kArea = find('area','city','place');
+      const kExec = find('lname','executiveassigned','executive','exec');
+      const kTc   = find('telecallers','telecaller','calledby','tc');
+      const kAppt = find('voc','appointmentdate','apptdate','appointment');
+
+      adminAccounts = rows.map(r => ({
+        accNo:      String(r[kAcc]  || '').trim(),
+        name:       String(r[kName] || '').trim(),
+        mobile:     String(r[kMob]  || '').trim().replace(/[^\d]/g,''),
+        address:    kAddr ? String(r[kAddr] || '').trim() : '',
+        area:       String(r[kArea] || '').trim(),
+        exec:       String(r[kExec] || '').trim().toUpperCase(),
+        telecaller: kTc   ? String(r[kTc]   || '').trim() : '',
+        apptDate:   kAppt ? String(r[kAppt] || '').replace('T00:00:00.000Z','').trim() : '',
+      })).filter(a => a.accNo);
+
+      document.getElementById('adminUZ').style.display = 'none';
+      document.getElementById('adminFD').style.display = 'flex';
+      document.getElementById('fdNm').textContent = file.name;
+      document.getElementById('fdCt').textContent = adminAccounts.length + ' accounts loaded';
+      buildAdminSummary();
+      showToast('✓ ' + adminAccounts.length + ' accounts loaded!');
+    } catch(err){ showToast('Could not read file — check format','red'); console.error(err); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 function resetAdminFile(){
   adminAccounts=[];
   document.getElementById('adminUZ').style.display='block';
