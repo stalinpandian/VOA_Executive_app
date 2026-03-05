@@ -571,7 +571,7 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 // ══════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════
-const GS_URL = 'https://script.google.com/macros/s/AKfycbw1zkKm0hJZim6cVvn7Qk_8PByRenTVbtyACStbDJ2y3BNp_564lXzsTnwU68OtZsS7/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbxsISVvW5SVXjEbVVkzCwVaNLMzijwTz-Uc95m9K_li7_sdlUNWhzQhiw4-NSJ-izPX/exec';
 
 const EXECUTIVES = [
   {name:'Suresh',   role:'Executive',     emoji:'🏍️', type:'exec'},
@@ -1156,12 +1156,11 @@ async function pushToSheet(){
   btn.disabled=true; btn.textContent='📤 Pushing...'; msg.style.display='none';
   try{
     const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    await fetch(GS_URL,{
-      method:'POST',
-      mode:'no-cors',
-      body:JSON.stringify({type:'appointments',date:today,accounts:adminAccounts}),
-      headers:{'Content-Type':'text/plain'}
-    });
+    const payload = {type:'appointments', date:today, accounts:adminAccounts};
+    // Use GET with encoded data — 100% reliable with Apps Script, no CORS issues
+    const encoded = encodeURIComponent(JSON.stringify(payload));
+    const url = GS_URL + '?action=post&data=' + encoded;
+    await fetch(url, {mode:'no-cors'});
     msg.className='stmsg ok';
     msg.innerHTML='✅ <b>'+adminAccounts.length+' accounts pushed!</b><br><span style="font-size:11px;font-weight:400">Check Google Sheet → Appointments tab to confirm.</span>';
     msg.style.display='block';
@@ -1184,14 +1183,9 @@ async function genAndShare(){
   showToast('📤 Submitting...');
 
   try{
-    // Add full timestamp to each visit before submitting
     const payload = visits.map(v=>({...v, timestamp: v.timestamp||v.date+' '+v.time}));
-    await fetch(GS_URL,{
-      method:'POST',
-      mode:'no-cors',
-      body:JSON.stringify(payload),
-      headers:{'Content-Type':'text/plain'}
-    });
+    const encoded = encodeURIComponent(JSON.stringify({type:'visits', exec:USER, visits:payload}));
+    await fetch(GS_URL + '?action=post&data=' + encoded, {mode:'no-cors'});
     showToast('✅ Submitted to Google Sheet!');
   }catch(e){showToast('Offline — Excel saved','red');}
 
