@@ -10,35 +10,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
-:root{--bg:#09111e;--surf:#0e1d30;--card:#132337;--bdr:#1c3352;--accent:#00d4a0;--blue:#38bdf8;--red:#fb4c6a;--gold:#fbbf24;--text:#ddeaf7;--muted:#5d7fa3;--r:13px;--font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+:root{--bg:#FFFFFF;--surf:#F7F7F7;--card:#FFFFFF;--bdr:#E0E0E0;--accent:#D32F2F;--blue:#C62828;--red:#B71C1C;--gold:#E53935;--text:#1A1A1A;--muted:#888888;--r:13px;--font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 70% 40% at 10% 0%,rgba(0,212,160,.07) 0%,transparent 60%),
-             radial-gradient(ellipse 55% 50% at 90% 95%,rgba(56,189,248,.06) 0%,transparent 60%)}
+  background:radial-gradient(ellipse 70% 40% at 10% 0%,rgba(211,47,47,.05) 0%,transparent 60%),
+             radial-gradient(ellipse 55% 50% at 90% 95%,rgba(183,28,28,.04) 0%,transparent 60%)}
 .app{position:relative;z-index:1;max-width:460px;margin:0 auto;padding-bottom:120px}
 
 /* ── Header ── */
-.hdr{position:sticky;top:0;z-index:60;background:rgba(9,17,30,.93);backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--bdr);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+.hdr{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.97);backdrop-filter:blur(16px);
+  border-bottom:1px solid #E0E0E0;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-ic{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#009b75);
-  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#09111e}
+.logo-ic{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#D32F2F,#B71C1C);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#FFFFFF}
 .logo-title{font-size:15px;font-weight:700}.logo-sub{font-size:10px;color:var(--muted);margin-top:1px}
 .hdr-right{text-align:right}
 .hdr-date{font-family:var(--mono);font-size:10px;color:var(--muted)}
 .exec-pill{display:inline-flex;align-items:center;gap:5px;margin-top:3px;cursor:pointer;
-  background:rgba(0,212,160,.12);border:1px solid rgba(0,212,160,.25);
+  background:rgba(211,47,47,.1);border:1px solid rgba(211,47,47,.3);
   color:var(--accent);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
 
 /* ── Picker ── */
-.picker-screen{position:fixed;inset:0;z-index:200;background:var(--bg);
+.picker-screen{position:fixed;inset:0;z-index:200;background:#FFFFFF;
   display:flex;flex-direction:column;align-items:center;padding:0 20px 40px;overflow-y:auto}
 .picker-top{width:100%;max-width:400px;text-align:center;padding:50px 0 32px}
 .picker-logo{width:72px;height:72px;border-radius:20px;margin:0 auto 20px;
-  background:linear-gradient(135deg,var(--accent),#009b75);
-  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#09111e;
-  box-shadow:0 8px 32px rgba(0,212,160,.25)}
+  background:linear-gradient(135deg,#D32F2F,#B71C1C);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#FFFFFF;
+  box-shadow:0 8px 32px rgba(211,47,47,.3)}
 .picker-title{font-size:24px;font-weight:700;margin-bottom:6px}
 .picker-sub{font-size:13px;color:var(--muted);line-height:1.6}
 .picker-label{width:100%;max-width:400px;font-size:10px;color:var(--muted);text-transform:uppercase;
@@ -47,18 +47,18 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .name-btn{background:var(--card);border:1.5px solid var(--bdr);border-radius:12px;padding:16px 12px;
   display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
   transition:border-color .15s,background .15s,transform .1s}
-.name-btn:active{transform:scale(.96)}.name-btn:hover{border-color:var(--accent);background:rgba(0,212,160,.06)}
+.name-btn:active{transform:scale(.96)}.name-btn:hover{border-color:var(--accent);background:rgba(211,47,47,.05)}
 .nb-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
 .nb-name{font-size:14px;font-weight:600}.nb-role{font-size:10px;color:var(--muted)}
-.av-0{background:rgba(0,212,160,.15);color:var(--accent)}.av-1{background:rgba(56,189,248,.15);color:var(--blue)}
-.av-2{background:rgba(251,191,36,.15);color:var(--gold)}.av-3{background:rgba(251,76,106,.15);color:var(--red)}
-.av-4{background:rgba(167,139,250,.15);color:#a78bfa}.av-5{background:rgba(251,146,60,.15);color:#fb923c}
+.av-0{background:rgba(211,47,47,.12);color:#D32F2F}.av-1{background:rgba(183,28,28,.12);color:#B71C1C}
+.av-2{background:rgba(229,57,53,.12);color:#E53935}.av-3{background:rgba(211,47,47,.15);color:#C62828}
+.av-4{background:rgba(198,40,40,.12);color:#C62828}.av-5{background:rgba(183,28,28,.12);color:#B71C1C}
 .other-wrap{width:100%;max-width:400px}
 .other-label{font-size:10px;color:var(--muted);text-align:center;margin:4px 0 12px}
 .other-row{display:flex;gap:10px}
 .other-input{flex:1;background:var(--surf);border:1.5px solid var(--bdr);color:var(--text);
   font-family:var(--font);font-size:14px;padding:12px 14px;border-radius:11px;outline:none}
-.other-go{flex:0 0 52px;height:50px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#009b75);
+.other-go{flex:0 0 52px;height:50px;border-radius:11px;background:linear-gradient(135deg,#D32F2F,#B71C1C);
   border:none;color:#09111e;font-size:20px;cursor:pointer}
 
 /* ── Sections ── */
@@ -68,15 +68,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ── Upload ── */
 .upload-zone{border:2px dashed var(--bdr);border-radius:var(--r);padding:26px 16px;text-align:center;
   cursor:pointer;background:var(--surf);transition:border-color .2s}
-.upload-zone:hover{border-color:var(--blue)}
+.upload-zone:hover{border-color:var(--accent)}
 .upload-zone input{display:none}
 .upload-icon{font-size:34px;margin-bottom:8px;opacity:.65}
 .upload-text{font-size:13px;color:var(--muted);line-height:1.6}
 .upload-text b{color:var(--blue)}
-.upload-done{background:rgba(0,212,160,.07);border:1px solid rgba(0,212,160,.2);
+.upload-done{background:rgba(211,47,47,.05);border:1px solid rgba(211,47,47,.2);
   border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px}
 .ud-icon{font-size:24px;flex-shrink:0}
-.ud-name{font-size:13px;font-weight:600;color:var(--accent)}
+.ud-name{font-size:13px;font-weight:600;color:#D32F2F}
 .ud-count{font-size:11px;color:var(--muted);margin-top:2px}
 .ud-change{margin-left:auto;font-size:11px;color:var(--muted);flex-shrink:0;
   background:var(--surf);border:1px solid var(--bdr);padding:5px 12px;border-radius:20px;cursor:pointer}
@@ -94,7 +94,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235d7fa3' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 13px center}
 .field textarea{resize:none;height:64px;font-size:13px}
-.acc-badge{font-size:9px;background:rgba(56,189,248,.15);color:var(--blue);
+.acc-badge{font-size:9px;background:rgba(211,47,47,.1);color:#D32F2F;
   padding:2px 8px;border-radius:10px;font-weight:600;display:none}
 
 /* ── Account search box ── */
@@ -102,7 +102,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .acc-search-input{width:100%;background:var(--surf);border:1.5px solid var(--bdr);
   color:var(--text);font-family:var(--mono);font-size:14px;padding:11px 44px 11px 14px;
   border-radius:10px;outline:none;transition:border-color .15s;-webkit-appearance:none}
-.acc-search-input:focus{border-color:var(--accent)}
+.acc-search-input:focus{border-color:#D32F2F}
 .acc-search-input::placeholder{font-family:var(--font);color:var(--muted);font-size:13px}
 .acc-search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);
   background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;display:none;line-height:1}
@@ -114,23 +114,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .acc-dropdown.open{display:block}
 .acc-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .1s}
 .acc-item:last-child{border-bottom:none}
-.acc-item:active,.acc-item:hover{background:rgba(0,212,160,.08)}
-.acc-item-no{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent)}
+.acc-item:active,.acc-item:hover{background:rgba(211,47,47,.06)}
+.acc-item-no{font-family:var(--mono);font-size:14px;font-weight:700;color:#D32F2F}
 .acc-item-name{font-size:12px;color:var(--text);margin-top:2px}
 .acc-item-area{font-size:10px;color:var(--muted);margin-top:1px}
 .acc-footer{padding:9px 14px;font-size:11px;color:var(--muted);text-align:center;font-style:italic;border-top:1px solid var(--bdr)}
 
 /* ── Autofill card ── */
 .autofill{margin-top:10px;padding:14px 16px;
-  background:rgba(0,212,160,.07);border:2px solid rgba(0,212,160,.3);
+  background:rgba(211,47,47,.04);border:2px solid rgba(211,47,47,.25);
   border-radius:12px;display:none;animation:slideup .15s ease}
 @keyframes slideup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.af-accno{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);letter-spacing:.5px}
+.af-accno{font-family:var(--mono);font-size:20px;font-weight:700;color:#D32F2F;letter-spacing:.5px}
 .af-custname{font-size:17px;font-weight:600;color:var(--text);margin-top:4px;
-  padding-bottom:10px;border-bottom:1px solid rgba(0,212,160,.15);margin-bottom:10px}
+  padding-bottom:10px;border-bottom:1px solid rgba(211,47,47,.15);margin-bottom:10px}
 .af-addr-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
 .af-addr-val{font-size:11px;color:var(--text);line-height:1.5;
-  padding-bottom:10px;border-bottom:1px solid rgba(0,212,160,.15);margin-bottom:10px}
+  padding-bottom:10px;border-bottom:1px solid rgba(211,47,47,.15);margin-bottom:10px}
 .af-row-grid{display:flex;gap:20px;flex-wrap:wrap}
 .af-item .af-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
 .af-item .af-val{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);margin-top:2px}
@@ -141,10 +141,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   border-radius:9px;font-size:12px;color:var(--red);font-weight:600;display:none}
 
 /* ── Add button ── */
-.btn-add{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),#00a87c);
-  border:none;border-radius:11px;color:#09111e;font-family:var(--font);font-size:15px;font-weight:700;
+.btn-add{width:100%;padding:14px;background:linear-gradient(135deg,#D32F2F,#B71C1C);
+  border:none;border-radius:11px;color:#FFFFFF;font-family:var(--font);font-size:15px;font-weight:700;
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 4px 20px rgba(0,212,160,.2);transition:transform .1s}
+  box-shadow:0 4px 20px rgba(211,47,47,.25);transition:transform .1s}
 .btn-add:active{transform:scale(.97)}
 
 /* ── Stats ── */
@@ -156,8 +156,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* ── Visit log ── */
 .vcnt{display:none;align-items:center;gap:8px;margin-bottom:10px}
-.vcnt-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.5s infinite}
-.vcnt-txt{font-size:12px;color:var(--accent);font-weight:600}
+.vcnt-dot{width:7px;height:7px;border-radius:50%;background:#D32F2F;animation:pulse 1.5s infinite}
+.vcnt-txt{font-size:12px;color:#D32F2F;font-weight:600}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
 .visit{background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--bdr);
   border-radius:var(--r);padding:13px 14px;margin-bottom:9px;
@@ -176,16 +176,16 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* ── Bottom bar ── */
 .bbar{position:fixed;bottom:0;left:0;right:0;max-width:460px;margin:0 auto;
-  padding:10px 14px 18px;background:linear-gradient(to top,var(--bg) 65%,transparent);
+  padding:10px 14px 18px;background:linear-gradient(to top,#FFFFFF 65%,transparent);
   display:flex;gap:8px;z-index:50}
 .btn-rst{flex:0 0 48px;height:48px;border-radius:11px;background:var(--card);
   border:1.5px solid var(--bdr);color:var(--muted);font-size:18px;cursor:pointer}
 .btn-rst:hover{border-color:var(--red);color:var(--red)}
 .btn-xl{flex:1;height:48px;border-radius:11px;
-  background:linear-gradient(135deg,var(--blue),#0284c7);
+  background:linear-gradient(135deg,#D32F2F,#B71C1C);
   border:none;color:white;font-family:var(--font);font-size:13px;font-weight:700;
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
-  box-shadow:0 4px 20px rgba(56,189,248,.22)}
+  box-shadow:0 4px 20px rgba(211,47,47,.25)}
 .btn-xl:active{transform:scale(.97)}.btn-xl:disabled{opacity:.35;cursor:not-allowed}
 .btn-wa{flex:0 0 48px;height:48px;border-radius:11px;background:#25d366;border:none;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
@@ -370,6 +370,9 @@ const EXECUTIVES = [
   {name:'Ganesh',  role:'Executive',     emoji:'🏍️'},
 ];
 
+// ══ GOOGLE SHEET WEB APP URL ════════════════════════════════
+const GS_URL = 'https://script.google.com/macros/s/AKfycbx4cM_HTjff5njUrY9kYhfv_zHHKWkunfV-8di_8JGlg7SK0cq1qdDtxKb0i9maLQzk/exec';
+
 // ══ STATE ════════════════════════════════════════════════════════
 let EXEC='', accounts=[], visits=[], picked=null;
 
@@ -462,6 +465,7 @@ function loadFile(file){
       const kArea=find('area','city','location','place');
       const kBat =find('batch','batchno');
       const kAddr=find('address','addr','add1','address1');
+      const kExec=find('executive','exec','assignedto','executivename','executiveassigned');
 
       accounts=rows.map(r=>({
         accNo:  String(r[kAcc] ||'').trim(),
@@ -470,12 +474,19 @@ function loadFile(file){
         area:   String(r[kArea]||'').trim(),
         batch:  String(r[kBat] ||'').trim(),
         address:kAddr?String(r[kAddr]||'').trim():'',
+        exec:kExec?String(r[kExec]||'').trim():'',
       })).filter(a=>a.accNo);
 
+      // Filter accounts for THIS executive only
+      const myAccounts = accounts.filter(a =>
+        !a.exec || a.exec.trim() === '' ||
+        a.exec.toLowerCase().includes(EXEC.toLowerCase())
+      );
+      accounts = myAccounts;
       localStorage.setItem('voa_accounts',JSON.stringify(accounts));
       showUploadDone(file.name,accounts.length);
       updateBadge();
-      showToast('✓ '+accounts.length+' accounts loaded!');
+      showToast('✓ '+accounts.length+' accounts loaded for '+EXEC+'!');
     }catch(e){showToast('Could not read file — check format','red');}
   };
   reader.readAsArrayBuffer(file);
@@ -681,25 +692,75 @@ function delVisit(id){
 }
 
 // ══ GENERATE EXCEL + SEND TO WHATSAPP ════════════════════════════
-function genAndShare(){
+async function genAndShare(){
   if(!visits.length)return;
   const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).replace(/ /g,'-');
   const fname='VOA_'+EXEC+'_'+today+'.xlsx';
 
-  // Build Excel
-  const rows=[
-    ['VOA RECOVERY MASTER — EXECUTIVE VISIT FEEDBACK'],
-    ['Executive: '+EXEC,'','Date: '+today],
+  // ── Submit to Google Sheet ──
+  showToast('📤 Submitting to server...');
+  try {
+    const resp = await fetch(GS_URL, {
+      method:'POST',
+      body: JSON.stringify(visits),
+      headers:{'Content-Type':'application/json'}
+    });
+    const result = await resp.json();
+    if(result.status === 'success'){
+      showToast('✅ Submitted to Google Sheet!');
+    } else {
+      showToast('⚠ Sheet error — downloading Excel','red');
+    }
+  } catch(err) {
+    showToast('⚠ No internet — downloading Excel','red');
+  }
+
+  // ── Also generate Excel as backup ──
+  const COLS = ['Batch No.','Account No.','Customer Name','Mobile No.','Area','Executive Name','Visit Date','Visit Outcome','Remarks'];
+  const allRows=[
+    ['VOA RECOVERY MASTER — EXECUTIVE VISIT FEEDBACK — ALL VISITS'],
+    ['Executive: '+EXEC,'','Date: '+today,'','Total: '+visits.length],
     [],
-    ['Batch No.','Account No.','Customer Name','Mobile No.','Area','Executive Name','Visit Date','Visit Outcome','Collection Amount (₹)','Remarks']
+    COLS
   ];
-  visits.forEach(v=>rows.push([v.batch,v.accNo,v.name,v.mobile,v.area,v.exec,today,v.outcome,'',v.remarks]));
+  visits.forEach(v=>allRows.push([v.batch,v.accNo,v.name,v.mobile,v.area,v.exec,today,v.outcome,v.remarks]));
+
+  const pending=visits.filter(v=>v.outcome!=='Collected'&&v.outcome!=='Already Collected');
+  const pendRows=[
+    ['VOA RECOVERY MASTER — EXECUTIVE VISIT FEEDBACK — PENDING / NOT COLLECTED'],
+    ['Executive: '+EXEC,'','Date: '+today,'','Pending: '+pending.length],
+    [],
+    COLS
+  ];
+  pending.forEach(v=>pendRows.push([v.batch,v.accNo,v.name,v.mobile,v.area,v.exec,today,v.outcome,v.remarks]));
+
+  const collected=visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected');
+  const collRows=[
+    ['VOA RECOVERY MASTER — EXECUTIVE VISIT FEEDBACK — COLLECTED'],
+    ['Executive: '+EXEC,'','Date: '+today,'','Collected: '+collected.length],
+    [],
+    COLS
+  ];
+  collected.forEach(v=>collRows.push([v.batch,v.accNo,v.name,v.mobile,v.area,v.exec,today,v.outcome,v.remarks]));
+
+  const COL_W=[{wch:10},{wch:16},{wch:22},{wch:13},{wch:13},{wch:14},{wch:12},{wch:22},{wch:28}];
 
   const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[{wch:10},{wch:16},{wch:22},{wch:13},{wch:13},{wch:14},{wch:12},{wch:22},{wch:18},{wch:28}];
-  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:9}}];
-  XLSX.utils.book_append_sheet(wb,ws,'Visit_Feedback');
+
+  const ws=XLSX.utils.aoa_to_sheet(allRows);
+  ws['!cols']=COL_W;
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:8}}];
+  XLSX.utils.book_append_sheet(wb,ws,'All_Visits');
+
+  const ws2=XLSX.utils.aoa_to_sheet(pendRows);
+  ws2['!cols']=COL_W;
+  ws2['!merges']=[{s:{r:0,c:0},e:{r:0,c:8}}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Pending');
+
+  const ws3=XLSX.utils.aoa_to_sheet(collRows);
+  ws3['!cols']=COL_W;
+  ws3['!merges']=[{s:{r:0,c:0},e:{r:0,c:8}}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Collected');
 
   // ✅ Generate as blob to share
   const wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
