@@ -516,8 +516,13 @@ textarea.fi{resize:none;height:60px;font-size:12px}
         </div>
         <div id="adminFD" class="fdone" style="display:none">
           <div class="fd-ic">✅</div>
-          <div><div class="fd-nm" id="fdNm">—</div><div class="fd-ct" id="fdCt">—</div></div>
+          <div style="flex:1"><div class="fd-nm" id="fdNm">—</div><div class="fd-ct" id="fdCt">—</div></div>
           <div class="fd-ch" onclick="resetAdminFile()">Change</div>
+        </div>
+        <div id="adminUploadStatus" style="display:none;margin-top:8px;padding:10px 14px;
+          background:rgba(46,125,50,.08);border:1.5px solid rgba(46,125,50,.3);
+          border-radius:10px;font-size:13px;font-weight:700;color:#2E7D32;text-align:center">
+          ✅ File uploaded — scroll down to see breakdown & push!
         </div>
       </div>
     </div>
@@ -1050,10 +1055,15 @@ function loadAdminFile(file){
       const kMob  = find('mobile','phone','mob','phno','contact');
       const kAddr = find('address','addr');
       const kArea = find('area','city','place');
-      const kExec = find('lname','executiveassigned','executive','exec');
+      // Fix: detect exec col even if header is just "NAME" (not same as customer name col)
+      let kExec = find('lname','executiveassigned','executive','exec','assignedto');
+      if(!kExec) kExec = keys.find(k => k.toLowerCase().replace(/[\s_\-\.]/g,'').includes('name') && k !== kName) || null;
       const kTc   = find('telecallers','telecaller','calledby','tc');
-      const kAppt = find('voc','appointmentdate','apptdate','appointment');
+      // Fix: prefer exact 'voc' col for appointment date (not 'sub voc')
+      let kAppt = keys.find(k => k.toLowerCase().replace(/[\s_\-\.]/g,'') === 'voc') || null;
+      if(!kAppt) kAppt = find('appointmentdate','apptdate','appointment','date');
 
+      console.log('Columns detected → kAcc:',kAcc,'kName:',kName,'kExec:',kExec,'kTc:',kTc,'kAppt:',kAppt);
       adminAccounts = rows.map(r => ({
         accNo:      String(r[kAcc]  || '').trim(),
         name:       String(r[kName] || '').trim(),
@@ -1067,6 +1077,7 @@ function loadAdminFile(file){
 
       document.getElementById('adminUZ').style.display = 'none';
       document.getElementById('adminFD').style.display = 'flex';
+      document.getElementById('adminUploadStatus').style.display = 'block';
       document.getElementById('fdNm').textContent = file.name;
       document.getElementById('fdCt').textContent = adminAccounts.length + ' accounts loaded';
       buildAdminSummary();
@@ -1080,6 +1091,7 @@ function resetAdminFile(){
   adminAccounts=[];
   document.getElementById('adminUZ').style.display='block';
   document.getElementById('adminFD').style.display='none';
+  document.getElementById('adminUploadStatus').style.display='none';
   document.getElementById('adminSummary').style.display='none';
   document.getElementById('adminFI').value='';
 }
