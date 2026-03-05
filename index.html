@@ -188,7 +188,7 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 .v-nm{font-size:12px;color:var(--text);margin:2px 0}
 .v-out{font-size:12px;font-weight:700;margin-top:2px}
 .v-rem{font-size:11px;color:var(--muted);font-style:italic;margin-top:2px}
-.v-time{font-size:10px;color:var(--muted);margin-top:3px}
+.v-time{font-size:10px;color:var(--muted);margin-top:4px;font-family:var(--M)}
 .v-del{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding-left:7px;flex-shrink:0}
 .v-del:hover{color:var(--red)}
 .empty-state{text-align:center;padding:28px 16px;color:var(--muted);font-size:13px}
@@ -931,6 +931,41 @@ document.addEventListener('click',e=>{if(!e.target.closest('#accWrap'))hideDd();
 
 
 
+// ══ ADD VISIT ════════════════════════════════════════════
+function addVisit(){
+  const outcome = document.getElementById('outcome').value;
+  const remarks = document.getElementById('remarks').value.trim();
+  if(!picked){ showToast('⚠ Select an account','red'); return; }
+  if(!outcome){ showToast('⚠ Select outcome','red'); return; }
+  const dup = visits.find(v=>v.accNo===picked.accNo);
+  if(dup){ if(!confirm('Already logged as: '+dup.outcome+'. Add another entry?')) return; }
+  const now = new Date();
+  const timeStamp = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const dateStamp = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  visits.push({
+    id:       Date.now(),
+    exec:     USER,
+    accNo:    picked.accNo,
+    name:     picked.name,
+    mobile:   picked.mobile,
+    area:     picked.area,
+    address:  picked.address   || '',
+    telecaller: picked.telecaller || '',
+    apptDate: picked.apptDate  || '',
+    outcome,
+    remarks,
+    time:      timeStamp,
+    date:      dateStamp,
+    timestamp: dateStamp + ' ' + timeStamp,
+  });
+  localStorage.setItem('voa_visits', JSON.stringify(visits));
+  clearAcc();
+  document.getElementById('outcome').value  = '';
+  document.getElementById('remarks').value  = '';
+  showToast('✓ Visit logged!');
+  render();
+}
+
 // ══ RENDER EXEC ══
 function render(){
   const total=visits.length;
@@ -956,7 +991,7 @@ function render(){
         <div class="v-out" style="color:${oc(v.outcome)}">${v.outcome}</div>
         ${v.telecaller?'<div style="font-size:10px;color:var(--blue);margin-top:2px">🎧 '+v.telecaller+'</div>':''}
         ${v.remarks?'<div class="v-rem">"'+v.remarks+'"</div>':''}
-        <div class="v-time">${v.time}</div>
+        <div class="v-time">🕐 ${v.time} &nbsp;·&nbsp; 📅 ${v.date}</div>
       </div>
       <button class="v-del" onclick="delVisit(${v.id})">×</button>
     </div>`).join('');
@@ -1149,10 +1184,12 @@ async function genAndShare(){
   showToast('📤 Submitting...');
 
   try{
+    // Add full timestamp to each visit before submitting
+    const payload = visits.map(v=>({...v, timestamp: v.timestamp||v.date+' '+v.time}));
     await fetch(GS_URL,{
       method:'POST',
       mode:'no-cors',
-      body:JSON.stringify(visits),
+      body:JSON.stringify(payload),
       headers:{'Content-Type':'text/plain'}
     });
     showToast('✅ Submitted to Google Sheet!');
@@ -1161,17 +1198,17 @@ async function genAndShare(){
   // Build Excel
   const wb=XLSX.utils.book_new();
   {
-    const COLS=['Account No.','Customer Name','Mobile','Area','Telecaller','Executive','Visit Date','Visit Outcome','Remarks'];
+    const COLS=['Account No.','Customer Name','Mobile','Area','Telecaller','Executive','Visit Date','Visit Time','Timestamp','Visit Outcome','Remarks'];
     const allR=[['VOA — EXECUTIVE VISIT REPORT'],['Executive: '+USER,'','Date: '+today],[],COLS];
-    visits.forEach(v=>allR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,today,v.outcome,v.remarks]));
+    visits.forEach(v=>allR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,v.date,v.time,v.timestamp||v.date+' '+v.time,v.outcome,v.remarks]));
     const pendR=[['VOA — PENDING'],['Executive: '+USER,'','Date: '+today],[],COLS];
-    visits.filter(v=>v.outcome!=='Collected'&&v.outcome!=='Already Collected').forEach(v=>pendR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,today,v.outcome,v.remarks]));
+    visits.filter(v=>v.outcome!=='Collected'&&v.outcome!=='Already Collected').forEach(v=>pendR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,v.date,v.time,v.timestamp||v.date+' '+v.time,v.outcome,v.remarks]));
     const collR=[['VOA — COLLECTED'],['Executive: '+USER,'','Date: '+today],[],COLS];
-    visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected').forEach(v=>collR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,today,v.outcome,v.remarks]));
-    const CW=[{wch:16},{wch:22},{wch:13},{wch:13},{wch:12},{wch:12},{wch:12},{wch:22},{wch:28}];
+    visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected').forEach(v=>collR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,v.date,v.time,v.timestamp||v.date+' '+v.time,v.outcome,v.remarks]));
+    const CW=[{wch:16},{wch:22},{wch:13},{wch:13},{wch:12},{wch:12},{wch:13},{wch:10},{wch:20},{wch:22},{wch:28}];
     ['All_Visits','Pending','Collected'].forEach((nm,i)=>{
       const r=[allR,pendR,collR][i];
-      const w=XLSX.utils.aoa_to_sheet(r);w['!cols']=CW;w['!merges']=[{s:{r:0,c:0},e:{r:0,c:8}}];
+      const w=XLSX.utils.aoa_to_sheet(r);w['!cols']=CW;w['!merges']=[{s:{r:0,c:0},e:{r:0,c:10}}];
       XLSX.utils.book_append_sheet(wb,w,nm);
     });
   }
