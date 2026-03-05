@@ -571,7 +571,7 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 // ══════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════
-const GS_URL = 'https://script.google.com/macros/s/AKfycbxsISVvW5SVXjEbVVkzCwVaNLMzijwTz-Uc95m9K_li7_sdlUNWhzQhiw4-NSJ-izPX/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbx6XkeEuYUTKbAhv3_rFXMOwiNIjzPdTzGs7NMxMrSgbjRnPdRRc2R0cLop1CV8ArkT/exec';
 
 const EXECUTIVES = [
   {name:'Suresh',   role:'Executive',     emoji:'🏍️', type:'exec'},
@@ -1156,20 +1156,17 @@ async function pushToSheet(){
   btn.disabled=true; btn.textContent='📤 Pushing...'; msg.style.display='none';
   try{
     const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const payload = {type:'appointments', date:today, accounts:adminAccounts};
-    // Use GET with encoded data — 100% reliable with Apps Script, no CORS issues
-    const encoded = encodeURIComponent(JSON.stringify(payload));
-    const url = GS_URL + '?action=post&data=' + encoded;
-    await fetch(url, {mode:'no-cors'});
+    const payload = JSON.stringify({type:'appointments',date:today,accounts:adminAccounts});
+    await sendToSheet(payload);
     msg.className='stmsg ok';
     msg.innerHTML='✅ <b>'+adminAccounts.length+' accounts pushed!</b><br><span style="font-size:11px;font-weight:400">Check Google Sheet → Appointments tab to confirm.</span>';
     msg.style.display='block';
     showToast('✅ Pushed!');
   }catch(e){
     msg.className='stmsg err';
-    msg.textContent='❌ Network error: '+e.message;
+    msg.textContent='❌ Error: '+e.message;
     msg.style.display='block';
-    showToast('Push failed — no internet?','red');
+    showToast('Push failed','red');
   }
   btn.disabled=false; btn.textContent='🚀 Push to Google Sheet';
 }
@@ -1183,9 +1180,8 @@ async function genAndShare(){
   showToast('📤 Submitting...');
 
   try{
-    const payload = visits.map(v=>({...v, timestamp: v.timestamp||v.date+' '+v.time}));
-    const encoded = encodeURIComponent(JSON.stringify({type:'visits', exec:USER, visits:payload}));
-    await fetch(GS_URL + '?action=post&data=' + encoded, {mode:'no-cors'});
+    const payload = JSON.stringify({type:'visits',exec:USER,visits:visits.map(v=>({...v,timestamp:v.timestamp||v.date+' '+v.time}))});
+    await sendToSheet(payload);
     showToast('✅ Submitted to Google Sheet!');
   }catch(e){showToast('Offline — Excel saved','red');}
 
@@ -1246,6 +1242,21 @@ function confirmReset(){
     visits=[];localStorage.setItem('voa_visits','[]');render();
     showToast('Cleared ✓');
   }
+}
+
+
+// ══ GOOGLE SHEET SENDER ══════════════════════════════════════
+// Uses URLSearchParams — simple request, no CORS preflight, Apps Script reads e.parameter.payload
+async function sendToSheet(jsonPayload){
+  const body = new URLSearchParams();
+  body.append('payload', jsonPayload);
+  const r = await fetch(GS_URL, {
+    method: 'POST',
+    body: body
+    // NO Content-Type header — browser sets it to application/x-www-form-urlencoded automatically
+    // This is a "simple request" — no CORS preflight needed!
+  });
+  return r;
 }
 
 function showToast(msg,type){
