@@ -571,7 +571,7 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 // ══════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════
-const GS_URL = 'https://script.google.com/macros/s/AKfycbyP7MUXIbeRva2d4j80WgKfBrO_GolwWPxy3faKRcd8jhSB625pmhvuIdXPR2NwEiTd/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbw1zkKm0hJZim6cVvn7Qk_8PByRenTVbtyACStbDJ2y3BNp_564lXzsTnwU68OtZsS7/exec';
 
 const EXECUTIVES = [
   {name:'Suresh',   role:'Executive',     emoji:'🏍️', type:'exec'},
@@ -1121,17 +1121,21 @@ async function pushToSheet(){
   btn.disabled=true; btn.textContent='📤 Pushing...'; msg.style.display='none';
   try{
     const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const r=await fetch(GS_URL,{method:'POST',
+    await fetch(GS_URL,{
+      method:'POST',
+      mode:'no-cors',
       body:JSON.stringify({type:'appointments',date:today,accounts:adminAccounts}),
-      headers:{'Content-Type':'application/json'}});
-    const d=await r.json();
-    if(d.status==='success'){
-      msg.className='stmsg ok';msg.textContent='✅ '+adminAccounts.length+' accounts pushed! All executives & telecallers can now load their accounts.';msg.style.display='block';
-      showToast('✅ Pushed!');
-    }else throw new Error(d.message||'Error');
+      headers:{'Content-Type':'text/plain'}
+    });
+    msg.className='stmsg ok';
+    msg.innerHTML='✅ <b>'+adminAccounts.length+' accounts pushed!</b><br><span style="font-size:11px;font-weight:400">Check Google Sheet → Appointments tab to confirm.</span>';
+    msg.style.display='block';
+    showToast('✅ Pushed!');
   }catch(e){
-    msg.className='stmsg err';msg.textContent='❌ Push failed: '+e.message;msg.style.display='block';
-    showToast('Push failed','red');
+    msg.className='stmsg err';
+    msg.textContent='❌ Network error: '+e.message;
+    msg.style.display='block';
+    showToast('Push failed — no internet?','red');
   }
   btn.disabled=false; btn.textContent='🚀 Push to Google Sheet';
 }
@@ -1145,10 +1149,13 @@ async function genAndShare(){
   showToast('📤 Submitting...');
 
   try{
-    const r=await fetch(GS_URL,{method:'POST',body:JSON.stringify(visits),headers:{'Content-Type':'application/json'}});
-    const d=await r.json();
-    if(d.status==='success')showToast('✅ Submitted to Google Sheet!');
-    else showToast('⚠ Sheet error — Excel saved','red');
+    await fetch(GS_URL,{
+      method:'POST',
+      mode:'no-cors',
+      body:JSON.stringify(visits),
+      headers:{'Content-Type':'text/plain'}
+    });
+    showToast('✅ Submitted to Google Sheet!');
   }catch(e){showToast('Offline — Excel saved','red');}
 
   // Build Excel
