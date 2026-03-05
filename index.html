@@ -315,6 +315,90 @@ textarea.fi{resize:none;height:60px;font-size:12px}
   z-index:500;box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .toast.show{opacity:1}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:4px}
+/* ══ ACCOUNT CARDS ══ */
+.acc-card{background:#fff;border:1px solid var(--bdr);border-radius:var(--r);
+  padding:13px 14px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.04);
+  animation:up .15s ease}
+.acc-card-no{font-family:var(--M);font-size:15px;font-weight:800;color:var(--red);margin-bottom:3px}
+.acc-card-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:7px}
+.acc-card-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px}
+.acc-card-meta span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.acc-card-meta span b{color:var(--text);font-weight:600}
+.acc-card-tc{display:inline-flex;align-items:center;gap:5px;
+  background:rgba(21,101,192,.07);color:var(--blue);
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+.acc-card-btn{width:100%;padding:9px;border:none;border-radius:9px;
+  background:linear-gradient(135deg,var(--red),var(--dr));
+  color:#fff;font-family:var(--F);font-size:12px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.acc-card-btn:active{transform:scale(.97)}
+.acc-card-status{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;float:right}
+.acs-collected{background:rgba(46,125,50,.1);color:var(--green)}
+.acs-pending{background:rgba(230,81,0,.1);color:var(--orange)}
+.acs-fresh{background:rgba(211,47,47,.07);color:var(--red)}
+
+/* ══ PENDING DETAIL MODAL ══ */
+.modal-bg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);
+  display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 18px 36px;
+  width:100%;max-width:460px;animation:slideup .2s ease}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
+.modal-handle{width:38px;height:4px;background:var(--bdr);border-radius:4px;margin:0 auto 18px}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:14px;color:var(--text)}
+.modal-accno{font-family:var(--M);font-size:20px;font-weight:800;color:var(--red);margin-bottom:3px}
+.modal-name{font-size:16px;font-weight:700;margin-bottom:12px;
+  padding-bottom:12px;border-bottom:1px solid var(--bdr)}
+.modal-row{display:flex;align-items:center;gap:10px;padding:8px 0;
+  border-bottom:1px solid #F5F5F5;font-size:13px}
+.modal-row:last-of-type{border-bottom:none}
+.modal-row-ic{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.modal-row-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.7px;font-weight:700;min-width:70px}
+.modal-row-val{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.modal-age{margin:12px 0;padding:10px 14px;border-radius:11px;text-align:center;font-weight:700;font-size:13px}
+.modal-age.fresh{background:rgba(46,125,50,.08);color:var(--green)}
+.modal-age.warn{background:rgba(230,81,0,.08);color:var(--orange)}
+.modal-age.crit{background:rgba(211,47,47,.08);color:var(--red)}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.modal-btn{flex:1;padding:12px;border:none;border-radius:11px;
+  font-family:var(--F);font-size:13px;font-weight:700;cursor:pointer}
+.modal-btn-red{background:linear-gradient(135deg,var(--red),var(--dr));color:#fff;
+  box-shadow:0 4px 12px rgba(211,47,47,.3)}
+.modal-btn-grey{background:var(--surf);border:1.5px solid var(--bdr);color:var(--muted)}
+
+/* ══ MGR ACCOUNT CARDS ══ */
+.mgr-tabs{display:flex;background:var(--surf);border:1px solid var(--bdr);
+  border-radius:11px;padding:4px;gap:4px;margin:12px 14px}
+.mgr-tab{flex:1;padding:8px 4px;border-radius:8px;border:none;background:transparent;
+  font-family:var(--F);font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s}
+.mgr-tab.on{background:#fff;color:var(--red);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.exec-filter{display:flex;gap:7px;overflow-x:auto;padding:0 14px 10px;
+  scrollbar-width:none;-ms-overflow-style:none}
+.exec-filter::-webkit-scrollbar{display:none}
+.ef-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid var(--bdr);
+  background:#fff;font-family:var(--F);font-size:12px;font-weight:700;color:var(--muted);cursor:pointer}
+.ef-btn.on{background:var(--red);border-color:var(--red);color:#fff}
+.mgr-acc-list{padding:0 14px}
+/* ══ PERFORMANCE REPORT ══ */
+.perf-period-btn{flex:1;padding:7px 4px;border-radius:8px;border:1.5px solid var(--bdr);
+  background:#fff;font-family:var(--F);font-size:11px;font-weight:700;color:var(--muted);cursor:pointer}
+.perf-period-btn.on{background:var(--red);border-color:var(--red);color:#fff}
+.perf-exec-row{background:var(--surf);border:1px solid var(--bdr);border-radius:11px;
+  padding:11px 13px;margin-bottom:7px}
+.per-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.per-name{font-size:14px;font-weight:800}
+.per-rate{font-size:13px;font-weight:800;padding:2px 10px;border-radius:20px}
+.per-rate-hi{background:rgba(46,125,50,.1);color:var(--green)}
+.per-rate-mid{background:rgba(230,81,0,.1);color:var(--orange)}
+.per-rate-lo{background:rgba(211,47,47,.1);color:var(--red)}
+.per-bar-wrap{background:var(--bdr);border-radius:4px;height:6px;margin-bottom:7px;overflow:hidden}
+.per-bar{height:100%;border-radius:4px;transition:width .5s ease}
+.per-stats{display:flex;gap:10px}
+.per-stat{font-size:11px;font-weight:700}
+.per-stat span{font-weight:400;color:var(--muted)}
+
+
 </style>
 </head>
 <body>
@@ -330,10 +414,6 @@ textarea.fi{resize:none;height:60px;font-size:12px}
   <div class="name-grid" id="execGrid"></div>
   <div class="pk-lbl" style="margin-top:6px">Management</div>
   <div class="name-grid">
-    <div class="nb" onclick="startPin('Gautham','manager')">
-      <div class="nb-av avM">👑</div>
-      <div class="nb-name">Gautham</div><div class="nb-role">Field Manager</div>
-    </div>
     <div class="nb" onclick="startPin('Arun','admin')">
       <div class="nb-av avA">⚙️</div>
       <div class="nb-name">Arun</div><div class="nb-role">Admin / DB Manager</div>
@@ -407,10 +487,21 @@ textarea.fi{resize:none;height:60px;font-size:12px}
     </div>
 
     <div class="sec">
-      <div class="tabs">
-        <button class="tab on" id="tabVisit" onclick="switchTab('visit')">📋 Log Visit</button>
-        <button class="tab" id="tabPend" onclick="switchTab('pending')">⏳ Pending</button>
+      <!-- Extra tab row for Gautham only -->
+      <div id="execMgrTabWrap" style="display:none;margin-bottom:8px">
+        <div class="tabs" style="background:rgba(46,125,50,.07);border-color:rgba(46,125,50,.2)">
+          <button class="tab on" id="tabMyWork" onclick="switchExecMgrTab('mywork')" style="font-size:11px">🏍️ My Work</button>
+          <button class="tab" id="tabTeam" onclick="switchExecMgrTab('team')" style="font-size:11px">📊 Team</button>
+          <button class="tab" id="tabTeamAcc" onclick="switchExecMgrTab('teamacc')" style="font-size:11px">👥 Accounts</button>
+        </div>
       </div>
+
+      <!-- My Work section (default) -->
+      <div id="myWorkSection">
+        <div class="tabs">
+          <button class="tab on" id="tabVisit" onclick="switchTab('visit')">📋 Log Visit</button>
+          <button class="tab" id="tabPend" onclick="switchTab('pending')">⏳ Pending</button>
+        </div>
 
       <!-- LOG VISIT TAB -->
       <div id="tabVisitContent">
@@ -488,17 +579,68 @@ textarea.fi{resize:none;height:60px;font-size:12px}
     </div>
   </div>
 
-  <!-- ══ MANAGER VIEW ══ -->
+      </div><!-- end myWorkSection -->
+
+      <!-- Team section (Gautham only) -->
+      <div id="teamSection" style="display:none">
+        <div class="stats" style="margin-bottom:10px">
+          <div class="stat"><div class="stn cr" id="mgTotal">0</div><div class="stl">Pending</div></div>
+          <div class="stat"><div class="stn cg" id="mgColl">0</div><div class="stl">Collected</div></div>
+          <div class="stat"><div class="stn" style="color:#B71C1C" id="mgCrit">0</div><div class="stl">Critical</div></div>
+        </div>
+        <div class="sec"><div class="sec-t">Executive Wise</div><div id="mgrExecList"></div></div>
+      </div>
+
+      <!-- Team Accounts section (Gautham only) -->
+      <div id="teamAccSection" style="display:none">
+        <div class="mgr-tabs" style="margin:0 0 8px">
+          <button class="mgr-tab on" id="mgrTabAccounts" onclick="switchMgrTab('accounts')">📋 Accounts</button>
+          <button class="mgr-tab" id="mgrTabPending" onclick="switchMgrTab('pending')">⏳ Pending</button>
+        </div>
+        <div id="mgrAccountsTab">
+          <div class="exec-filter" id="mgrExecFilter"></div>
+          <div class="mgr-acc-list" id="mgrAccList"><div class="loading-b">Tap an executive above</div></div>
+        </div>
+        <div id="mgrPendingTab" style="display:none">
+          <div class="exec-filter" id="mgrPendFilter"></div>
+          <div class="mgr-acc-list" id="mgrPendList"><div class="loading-b">Tap an executive above</div></div>
+        </div>
+      </div>
+
+    </div><!-- end execView inner -->
+  </div><!-- end execView -->
+
+  <!-- ══ MANAGER VIEW (standalone - kept for legacy) ══ -->
   <div id="mgrView" style="display:none">
     <div class="sec">
       <div class="sec-t">Team Overview — Today</div>
       <div class="stats" style="margin-bottom:10px">
-        <div class="stat"><div class="stn cr" id="mgTotal">0</div><div class="stl">Total Pending</div></div>
+        <div class="stat"><div class="stn cr" id="mgTotal">0</div><div class="stl">Pending</div></div>
         <div class="stat"><div class="stn cg" id="mgColl">0</div><div class="stl">Collected</div></div>
         <div class="stat"><div class="stn" style="color:#B71C1C" id="mgCrit">0</div><div class="stl">Critical</div></div>
       </div>
-      <div class="sec-t">Executive Wise</div>
-      <div id="mgrExecList"></div>
+    </div>
+    <div class="mgr-tabs">
+      <button class="mgr-tab on" id="mgrTabSum" onclick="switchMgrTab('summary')">📊 Summary</button>
+      <button class="mgr-tab" id="mgrTabAcc" onclick="switchMgrTab('accounts')">📋 Accounts</button>
+      <button class="mgr-tab" id="mgrTabPend" onclick="switchMgrTab('pending')">⏳ Pending</button>
+    </div>
+    <!-- Summary Tab -->
+    <div id="mgrSummaryTab">
+      <div class="sec">
+        <div class="sec-t">Executive Wise</div>
+        <div id="mgrExecList"></div>
+      </div>
+    </div>
+    <!-- Accounts Tab -->
+    <div id="mgrAccountsTab" style="display:none">
+      <div class="exec-filter" id="mgrExecFilter"></div>
+      <div class="mgr-acc-list" id="mgrAccList"><div class="loading-b">Select an executive above</div></div>
+    </div>
+    <!-- Pending Tab -->
+    <div id="mgrPendingTab" style="display:none">
+      <div class="exec-filter" id="mgrPendFilter"></div>
+      <div class="mgr-acc-list" id="mgrPendList"><div class="loading-b">Select an executive above</div></div>
     </div>
   </div>
 
@@ -551,6 +693,42 @@ textarea.fi{resize:none;height:60px;font-size:12px}
         <button class="btn btn-red" onclick="resetPin()">🔑 Reset PIN (force re-set on next login)</button>
       </div>
     </div>
+
+    <!-- ══ PERFORMANCE REPORT ══ -->
+    <div class="sec">
+      <div class="sec-t">📊 Performance Report</div>
+      <div class="card">
+        <div style="display:flex;gap:6px;margin-bottom:12px">
+          <button class="perf-period-btn on" id="perfToday"   onclick="setPerfPeriod('today')">Today</button>
+          <button class="perf-period-btn"    id="perfWeek"    onclick="setPerfPeriod('week')">This Week</button>
+          <button class="perf-period-btn"    id="perfMonth"   onclick="setPerfPeriod('month')">This Month</button>
+          <button class="perf-period-btn"    id="perfAll"     onclick="setPerfPeriod('all')">All Time</button>
+        </div>
+        <button class="btn btn-red" onclick="loadPerfReport()" style="margin-bottom:10px">🔄 Load Report</button>
+        <div id="perfLoading" style="display:none" class="loading-b">⏳ Loading performance data...</div>
+        <div id="perfContent" style="display:none">
+          <!-- Consolidated stats -->
+          <div class="sec-t" style="margin-bottom:8px">Consolidated</div>
+          <div class="stats" style="margin-bottom:12px">
+            <div class="stat"><div class="stn cr"  id="perfTotal">0</div><div class="stl">Assigned</div></div>
+            <div class="stat"><div class="stn cg"  id="perfColl">0</div><div class="stl">Collected</div></div>
+            <div class="stat"><div class="stn co"  id="perfPend">0</div><div class="stl">Pending</div></div>
+          </div>
+          <div style="text-align:center;margin-bottom:12px">
+            <div style="font-size:28px;font-weight:800;color:var(--green)" id="perfRate">0%</div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Collection Rate</div>
+          </div>
+          <!-- Executive wise -->
+          <div class="sec-t" style="margin-bottom:8px">Executive Wise</div>
+          <div id="perfExecRows"></div>
+          <!-- Download button -->
+          <button class="btn btn-grn" onclick="downloadPerfExcel()" style="margin-top:10px">
+            📥 Download Excel Report
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </div>
@@ -565,13 +743,34 @@ textarea.fi{resize:none;height:60px;font-size:12px}
     </svg>
   </button>
 </div>
+
+<!-- ══ PENDING DETAIL MODAL ══ -->
+<div class="modal-bg" id="pendModal" onclick="closePendModal(event)">
+  <div class="modal" id="pendModalBox">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⏳ Pending Account Details</div>
+    <div class="modal-accno" id="pmAccNo">—</div>
+    <div class="modal-name" id="pmName">—</div>
+    <div id="pmAge" class="modal-age fresh"></div>
+    <div class="modal-row"><span class="modal-row-ic">📞</span><span class="modal-row-lbl">Mobile</span><span class="modal-row-val" id="pmMob">—</span></div>
+    <div class="modal-row"><span class="modal-row-ic">📍</span><span class="modal-row-lbl">Area</span><span class="modal-row-val" id="pmArea">—</span></div>
+    <div class="modal-row" id="pmAddrRow" style="display:none"><span class="modal-row-ic">🏠</span><span class="modal-row-lbl">Address</span><span class="modal-row-val" id="pmAddr">—</span></div>
+    <div class="modal-row"><span class="modal-row-ic">🎧</span><span class="modal-row-lbl">Telecaller</span><span class="modal-row-val" id="pmTc">—</span></div>
+    <div class="modal-row"><span class="modal-row-ic">📅</span><span class="modal-row-lbl">Appt Date</span><span class="modal-row-val" id="pmAppt">—</span></div>
+    <div class="modal-row" id="pmLastRow" style="display:none"><span class="modal-row-ic">🔄</span><span class="modal-row-lbl">Last Status</span><span class="modal-row-val" id="pmLast">—</span></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-grey" onclick="closePendModal()">✕ Close</button>
+      <button class="modal-btn modal-btn-red" id="pmLogBtn" onclick="logFromModal()">📋 Log Visit →</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
 // ══════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════
-const GS_URL = 'https://script.google.com/macros/s/AKfycbx6XkeEuYUTKbAhv3_rFXMOwiNIjzPdTzGs7NMxMrSgbjRnPdRRc2R0cLop1CV8ArkT/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbwPh5EvA1W5mRmywFcLF-lEhG2h_BljHfFxARkmZx4uz5YTQr3kowBJ_fMrOX5vi31x/exec';
 
 const EXECUTIVES = [
   {name:'Suresh',   role:'Executive',     emoji:'🏍️', type:'exec'},
@@ -580,11 +779,11 @@ const EXECUTIVES = [
   {name:'Mano',     role:'Executive',     emoji:'🏍️', type:'exec'},
   {name:'Ganesh',   role:'Executive',     emoji:'🏍️', type:'exec'},
   {name:'Jaya',     role:'Executive',     emoji:'🏍️', type:'exec'},
+  {name:'Gautham',  role:'Field Manager', emoji:'👑', type:'exec'},
 ];
 const ALL_PEOPLE = [
   ...EXECUTIVES,
-  {name:'Gautham', role:'Field Manager', emoji:'👑', type:'manager'},
-  {name:'Arun',    role:'Admin',         emoji:'⚙️', type:'admin'},
+  {name:'Arun', role:'Admin', emoji:'⚙️', type:'admin'},
 ];
 
 const EXEC_NAMES = EXECUTIVES.map(e=>e.name.toUpperCase());
@@ -742,18 +941,17 @@ function enterApp(name, role, resume=false){
   document.getElementById('bbar').classList.remove('show');
 
   if(role==='exec'){
-    document.getElementById('hdrTitle').textContent='VOA Field';
-    document.getElementById('hdrSub').textContent='Executive App';
+    const isManager = name.toUpperCase()==='GAUTHAM';
+    document.getElementById('hdrTitle').textContent = isManager ? 'VOA Manager' : 'VOA Field';
+    document.getElementById('hdrSub').textContent   = isManager ? 'Gautham — Field Manager' : 'Executive App';
     document.getElementById('execView').style.display='block';
     document.getElementById('bbar').classList.add('show');
+    // Show manager tab only for Gautham
+    document.getElementById('execMgrTabWrap').style.display = isManager ? 'block' : 'none';
     visits=resume?JSON.parse(localStorage.getItem('voa_visits')||'[]'):[];
     if(!resume) localStorage.setItem('voa_visits','[]');
     loadAccounts(); loadPending(); render();
-  } else if(role==='manager'){
-    document.getElementById('hdrTitle').textContent='VOA Manager';
-    document.getElementById('hdrSub').textContent='Gautham — Team View';
-    document.getElementById('mgrView').style.display='block';
-    loadManagerData();
+    if(isManager) loadManagerData();
   } else if(role==='admin'){
     document.getElementById('hdrTitle').textContent='VOA Admin';
     document.getElementById('hdrSub').textContent='Arun — Control Panel';
@@ -925,7 +1123,7 @@ function pickAcc(acc){
 function clearAutofill(){picked=null;document.getElementById('afCard').style.display='none';document.getElementById('dupWarn').style.display='none';}
 function clearAcc(){document.getElementById('accSearch').value='';document.getElementById('accClr').style.display='none';hideDd();clearAutofill();}
 function hideDd(){document.getElementById('accDd').classList.remove('open');}
-document.addEventListener('click',e=>{if(!e.target.closest('#accWrap'))hideDd();if(!e.target.closest('#tcAccWrap'))hideTcDd();});
+document.addEventListener('click',e=>{if(!e.target.closest('#accWrap'))hideDd();});
 
 
 
@@ -1029,11 +1227,12 @@ function renderPending(){
   document.getElementById('pWarn').textContent=warn;
   document.getElementById('pCrit').textContent=crit;
 
-  document.getElementById('pendingLog').innerHTML=allPending.map(p=>{
+  document.getElementById('pendingLog').innerHTML=allPending.map((p,pi)=>{
+    _pendCards[pi+5000]=p;
     const d=p.daysPending||0;
     const cls=d>=6?'crit':d>=3?'warn':'fresh';
     const agelbl=d>=6?`<span class="pc-age age-crit">🔴 ${d} days</span>`:d>=3?`<span class="pc-age age-warn">🟡 ${d} days</span>`:`<span class="pc-age age-fresh">🟢 ${d===0?'Today':d+' day'+(d!==1?'s':'')}</span>`;
-    return `<div class="pcard ${cls}" onclick="prefillPending(${JSON.stringify(p).replace(/'/g,'&#39;')})">
+    return `<div class="pcard ${cls}" onclick="_openCard(${pi+5000})">
       <div class="pc-top">
         <div class="pc-no">${p.accNo}</div>
         ${agelbl}
@@ -1257,6 +1456,303 @@ async function sendToSheet(jsonPayload){
     // This is a "simple request" — no CORS preflight needed!
   });
   return r;
+}
+
+
+// ══ PENDING DETAIL MODAL ═══════════════════════════════
+let modalPendingAcc = null;
+
+function openPendModal(p){
+  modalPendingAcc = p;
+  const d = p.daysPending || 0;
+  document.getElementById('pmAccNo').textContent  = p.accNo;
+  document.getElementById('pmName').textContent   = p.name;
+  document.getElementById('pmMob').textContent    = p.mobile  || '—';
+  document.getElementById('pmArea').textContent   = p.area    || '—';
+  document.getElementById('pmTc').textContent     = p.telecaller || '—';
+  document.getElementById('pmAppt').textContent   = p.apptDate || '—';
+  // Address row
+  if(p.address){ document.getElementById('pmAddr').textContent=p.address; document.getElementById('pmAddrRow').style.display='flex'; }
+  else document.getElementById('pmAddrRow').style.display='none';
+  // Last status
+  if(p.lastOutcome){ document.getElementById('pmLast').textContent=p.lastOutcome; document.getElementById('pmLastRow').style.display='flex'; }
+  else document.getElementById('pmLastRow').style.display='none';
+  // Age badge
+  const ageEl = document.getElementById('pmAge');
+  if(d>=6){ ageEl.textContent='🔴 Pending for '+d+' days — CRITICAL'; ageEl.className='modal-age crit'; }
+  else if(d>=3){ ageEl.textContent='🟡 Pending for '+d+' days — Follow up needed'; ageEl.className='modal-age warn'; }
+  else{ ageEl.textContent='🟢 Assigned '+(d===0?'today':d+' day'+(d>1?'s':'')+' ago'); ageEl.className='modal-age fresh'; }
+  document.getElementById('pendModal').classList.add('open');
+}
+
+function closePendModal(e){
+  if(e && e.target !== document.getElementById('pendModal')) return;
+  document.getElementById('pendModal').classList.remove('open');
+  modalPendingAcc = null;
+}
+
+function logFromModal(){
+  if(!modalPendingAcc) return;
+  document.getElementById('pendModal').classList.remove('open');
+  prefillPending(modalPendingAcc);
+}
+
+// ══ MGR TAB SWITCH ═════════════════════════════════════
+let mgrAccFilter = 'ALL', mgrPendFilter = 'ALL';
+let mgrAllAccounts = [], mgrAllPending = [];
+
+function switchMgrTab(tab){
+  ['summary','accounts','pending'].forEach(t=>{
+    document.getElementById('mgrTab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('on', t===tab);
+    document.getElementById('mgr'+t.charAt(0).toUpperCase()+t.slice(1)+'Tab').style.display = t===tab?'block':'none';
+  });
+  if(tab==='accounts' && mgrAllAccounts.length===0) loadMgrAccounts();
+  if(tab==='pending'  && mgrAllPending.length===0)  loadMgrPending();
+}
+
+async function loadMgrAccounts(){
+  document.getElementById('mgrAccList').innerHTML='<div class="loading-b">⏳ Loading all accounts...</div>';
+  try{
+    const r = await fetch(GS_URL+'?type=appointments&exec=ALL');
+    const d = await r.json();
+    // Fetch per exec and merge
+    const all = [];
+    for(const e of EXECUTIVES){
+      try{
+        const re = await fetch(GS_URL+'?type=appointments&exec='+encodeURIComponent(e.name.toUpperCase()));
+        const de = await re.json();
+        if(de.status==='success'&&de.accounts) de.accounts.forEach(a=>all.push({...a,execName:e.name}));
+      }catch(err){}
+    }
+    mgrAllAccounts = all;
+    buildMgrExecFilter('mgrExecFilter', 'mgrAcc', mgrAllAccounts);
+    renderMgrAccCards('ALL');
+  }catch(e){
+    document.getElementById('mgrAccList').innerHTML='<div class="loading-b">Could not load — check connection</div>';
+  }
+}
+
+async function loadMgrPending(){
+  document.getElementById('mgrPendList').innerHTML='<div class="loading-b">⏳ Loading pending...</div>';
+  const all=[];
+  for(const e of EXECUTIVES){
+    try{
+      const r = await fetch(GS_URL+'?type=pending&exec='+encodeURIComponent(e.name.toUpperCase()));
+      const d = await r.json();
+      if(d.status==='success'&&d.accounts) d.accounts.forEach(a=>all.push({...a,execName:e.name}));
+      else if(d.status==='success'&&d.pending) d.pending.forEach(a=>all.push({...a,execName:e.name}));
+    }catch(err){}
+  }
+  mgrAllPending = all;
+  buildMgrExecFilter('mgrPendFilter', 'mgrPend', mgrAllPending);
+  renderMgrPendCards('ALL');
+}
+
+function buildMgrExecFilter(filterId, prefix, data){
+  const execs = ['ALL', ...new Set(data.map(a=>a.execName||a.exec||'').filter(Boolean))];
+  document.getElementById(filterId).innerHTML = execs.map(e=>
+    `<button class="ef-btn ${e==='ALL'?'on':''}" onclick="filterMgr('${prefix}','${e}','${filterId}')">${e==='ALL'?'All':e}</button>`
+  ).join('');
+}
+
+function filterMgr(prefix, exec, filterId){
+  document.querySelectorAll('#'+filterId+' .ef-btn').forEach(b=>b.classList.toggle('on', b.textContent===exec||(exec==='ALL'&&b.textContent==='All')));
+  if(prefix==='mgrAcc') renderMgrAccCards(exec);
+  else renderMgrPendCards(exec);
+}
+
+function renderMgrAccCards(exec){
+  const list = exec==='ALL' ? mgrAllAccounts : mgrAllAccounts.filter(a=>(a.execName||a.exec||'').toUpperCase()===exec.toUpperCase());
+  if(!list.length){ document.getElementById('mgrAccList').innerHTML='<div class="empty-state"><div class="empty-ic">📋</div>No accounts found</div>'; return; }
+  document.getElementById('mgrAccList').innerHTML = list.map(a=> buildAccCard(a, false)).join('');
+}
+
+function renderMgrPendCards(exec){
+  const list = exec==='ALL' ? mgrAllPending : mgrAllPending.filter(a=>(a.execName||a.exec||'').toUpperCase()===exec.toUpperCase());
+  if(!list.length){ document.getElementById('mgrPendList').innerHTML='<div class="empty-state"><div class="empty-ic">🎉</div>No pending accounts!</div>'; return; }
+  document.getElementById('mgrPendList').innerHTML = list.map(a=> buildAccCard(a, true)).join('');
+}
+
+// Store pending data by index for safe click handling
+const _pendCards = {};
+let _pendIdx = 0;
+
+function buildAccCard(a, isPending){
+  const d = a.daysPending||0;
+  const statusBadge = isPending
+    ? (d>=6?'<span class="acc-card-status" style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;background:rgba(211,47,47,.1);color:var(--red)">🔴 '+d+'d</span>'
+      :d>=3?'<span class="acc-card-status acs-pending">🟡 '+d+'d</span>'
+      :'<span class="acc-card-status acs-fresh">🟢 Today</span>')
+    : '';
+  const execTag = (a.execName||a.exec) ? '<span style="font-size:10px;color:var(--muted);font-weight:600">👤 '+(a.execName||a.exec)+'</span>' : '';
+  let btnHtml = '';
+  if(isPending){
+    const idx = _pendIdx++;
+    _pendCards[idx] = a;
+    btnHtml = '<button class="acc-card-btn" onclick="_openCard('+idx+')">🔍 View Details</button>';
+  }
+  return '<div class="acc-card">'
+    + '<div style="display:flex;align-items:flex-start;justify-content:space-between">'
+    + '<div class="acc-card-no">'+a.accNo+'</div>'+statusBadge+'</div>'
+    + '<div class="acc-card-name">'+a.name+'</div>'
+    + '<div class="acc-card-meta">'
+    + (a.mobile?'<span>📞 <b>'+a.mobile+'</b></span>':'')
+    + (a.area?'<span>📍 <b>'+a.area+'</b></span>':'')
+    + (a.apptDate?'<span>📅 <b>'+a.apptDate+'</b></span>':'')
+    + execTag+'</div>'
+    + (a.telecaller?'<div class="acc-card-tc">🎧 Called by: '+a.telecaller+'</div>':'')
+    + (isPending&&a.lastOutcome?'<div style="font-size:11px;color:var(--orange);margin-bottom:8px;font-weight:600">Last: '+a.lastOutcome+'</div>':'')
+    + btnHtml+'</div>';
+}
+function _openCard(idx){ openPendModal(_pendCards[idx]); }
+
+
+// ══ GAUTHAM DUAL ROLE TAB SWITCH ══════════════════════
+function switchExecMgrTab(tab){
+  ['mywork','team','teamacc'].forEach(t=>{
+    const btnId = 'tab' + (t==='mywork'?'MyWork':t==='team'?'Team':'TeamAcc');
+    const secId = t==='mywork'?'myWorkSection':t==='team'?'teamSection':'teamAccSection';
+    document.getElementById(btnId).classList.toggle('on', t===tab);
+    document.getElementById(secId).style.display = t===tab?'block':'none';
+  });
+  if(tab==='team' && document.getElementById('mgrExecList').innerHTML.includes('loading'))
+    loadManagerData();
+  if(tab==='teamacc') loadMgrAccounts();
+}
+
+function switchMgrTab(tab){
+  ['accounts','pending'].forEach(t=>{
+    const btnId = 'mgrTab'+(t.charAt(0).toUpperCase()+t.slice(1));
+    document.getElementById(btnId).classList.toggle('on', t===tab);
+    document.getElementById('mgr'+(t.charAt(0).toUpperCase()+t.slice(1))+'Tab').style.display = t===tab?'block':'none';
+  });
+  if(tab==='accounts' && mgrAllAccounts.length===0) loadMgrAccounts();
+  if(tab==='pending'  && mgrAllPending.length===0)  loadMgrPending();
+}
+
+// ══ PERFORMANCE REPORT ════════════════════════════════
+let perfPeriod = 'today';
+let perfData   = [];
+
+function setPerfPeriod(p){
+  perfPeriod = p;
+  ['today','week','month','all'].forEach(x=>{
+    document.getElementById('perf'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('on', x===p);
+  });
+}
+
+async function loadPerfReport(){
+  document.getElementById('perfLoading').style.display='block';
+  document.getElementById('perfContent').style.display='none';
+
+  try{
+    // Get summary from sheet
+    const r = await fetch(GS_URL+'?type=manager_summary');
+    const d = await r.json();
+
+    // Also get visit reports for detailed stats
+    const rv = await fetch(GS_URL+'?type=visit_report&period='+perfPeriod);
+    let visits_data = [];
+    try{
+      const dv = await rv.json();
+      if(dv.status==='success' && dv.visits) visits_data = dv.visits;
+    }catch(e){}
+
+    // Build performance data from manager summary + visits
+    const execData = (d.status==='success' && d.accounts) ? d.accounts : [];
+    perfData = EXECUTIVES.map(e=>{
+      const sd = execData.find(x=>x.exec===e.name.toUpperCase())||{assigned:0,collected:0,pending:0};
+      const myVisits = visits_data.filter(v=>(v.exec||'').toUpperCase()===e.name.toUpperCase());
+      const outcomes = {};
+      myVisits.forEach(v=>{ outcomes[v.outcome]=(outcomes[v.outcome]||0)+1; });
+      return {
+        name: e.name,
+        assigned: sd.assigned||0,
+        collected: sd.collected||0,
+        pending: sd.pending||0,
+        visits: myVisits.length||sd.collected||0,
+        outcomes
+      };
+    });
+
+    renderPerfReport();
+    document.getElementById('perfLoading').style.display='none';
+    document.getElementById('perfContent').style.display='block';
+  }catch(err){
+    document.getElementById('perfLoading').style.display='none';
+    showToast('Could not load — check connection','red');
+  }
+}
+
+function renderPerfReport(){
+  const totAssigned = perfData.reduce((s,e)=>s+e.assigned,0);
+  const totColl     = perfData.reduce((s,e)=>s+e.collected,0);
+  const totPend     = perfData.reduce((s,e)=>s+e.pending,0);
+  const rate        = totAssigned>0 ? Math.round(totColl/totAssigned*100) : 0;
+
+  document.getElementById('perfTotal').textContent = totAssigned;
+  document.getElementById('perfColl').textContent  = totColl;
+  document.getElementById('perfPend').textContent  = totPend;
+  document.getElementById('perfRate').textContent  = rate+'%';
+  document.getElementById('perfRate').style.color  = rate>=70?'var(--green)':rate>=40?'var(--orange)':'var(--red)';
+
+  // Sort by collected desc
+  const sorted = [...perfData].sort((a,b)=>b.collected-a.collected);
+
+  document.getElementById('perfExecRows').innerHTML = sorted.map(e=>{
+    const r  = e.assigned>0 ? Math.round(e.collected/e.assigned*100) : 0;
+    const rCls = r>=70?'per-rate-hi':r>=40?'per-rate-mid':'per-rate-lo';
+    const barColor = r>=70?'var(--green)':r>=40?'var(--orange)':'var(--red)';
+    return '<div class="perf-exec-row">'
+      +'<div class="per-top">'
+      +'<div class="per-name">🏍️ '+e.name+'</div>'
+      +'<div class="per-rate '+rCls+'">'+r+'%</div>'
+      +'</div>'
+      +'<div class="per-bar-wrap"><div class="per-bar" style="width:'+r+'%;background:'+barColor+'"></div></div>'
+      +'<div class="per-stats">'
+      +'<div class="per-stat">'+e.assigned+' <span>assigned</span></div>'
+      +'<div class="per-stat" style="color:var(--green)">'+e.collected+' <span>collected</span></div>'
+      +'<div class="per-stat" style="color:var(--red)">'+e.pending+' <span>pending</span></div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function downloadPerfExcel(){
+  if(!perfData.length){ showToast('Load report first','red'); return; }
+  const wb = XLSX.utils.book_new();
+
+  // Consolidated sheet
+  const today = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const totA = perfData.reduce((s,e)=>s+e.assigned,0);
+  const totC = perfData.reduce((s,e)=>s+e.collected,0);
+  const totP = perfData.reduce((s,e)=>s+e.pending,0);
+  const rate = totA>0?Math.round(totC/totA*100):0;
+
+  const consRows = [
+    ['VOA PERFORMANCE REPORT — '+today],
+    ['Period: '+perfPeriod.toUpperCase()],
+    [],
+    ['CONSOLIDATED SUMMARY'],
+    ['Total Assigned','Total Collected','Total Pending','Collection Rate'],
+    [totA, totC, totP, rate+'%'],
+    [],
+    ['EXECUTIVE WISE BREAKDOWN'],
+    ['Executive','Assigned','Collected','Pending','Collection Rate'],
+    ...[...perfData].sort((a,b)=>b.collected-a.collected).map(e=>{
+      const r = e.assigned>0?Math.round(e.collected/e.assigned*100):0;
+      return [e.name, e.assigned, e.collected, e.pending, r+'%'];
+    })
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(consRows);
+  ws['!cols'] = [{wch:20},{wch:14},{wch:14},{wch:14},{wch:16}];
+  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:4}}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Performance');
+
+  const fname = 'VOA_Performance_'+today.replace(/ /g,'-')+'.xlsx';
+  XLSX.writeFile(wb, fname);
+  showToast('📥 Downloaded!');
 }
 
 function showToast(msg,type){
