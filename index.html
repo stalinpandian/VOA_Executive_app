@@ -711,10 +711,11 @@ textarea.fi{resize:none;height:60px;font-size:12px}
         </div>
         <div class="sec-t">Breakdown</div>
         <div id="adminBreakdown"></div>
-        <button class="btn btn-red" id="btnPush" onclick="pushToSheet()">
-          🚀 Push to Google Sheet
+        <button class="btn" id="btnDownload" onclick="downloadCleanBase()" style="background:linear-gradient(135deg,#2E7D32,#1B5E20);color:#fff;width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px">
+          ⬇️ Download Clean Base
         </button>
         <div class="stmsg" id="adminMsg"></div>
+        <div id="uploadReport" style="display:none"></div>
       </div>
     </div>
     <div class="sec">
@@ -819,7 +820,7 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 // ══════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════
-const GS_URL = 'https://script.google.com/macros/s/AKfycbxabMvnbts0IkaUCpZg-d-0u000GgZ1-q9ALczPOV2i1-6YaQ6GvdVA8yTronU--Ck/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbzedXGKSK2f_xFy4ALADapwfUP7ifQ7xPNa04nbVfUObN_hj8kYLIR9Jap6ySZ4F215/exec';
 
 const EXECUTIVES = [
   {name:'Suresh',   role:'Executive',     emoji:'🏍️', type:'exec'},
@@ -1325,39 +1326,47 @@ function loadAdminFile(file){
     try{
       const wb   = XLSX.read(ev.target.result, {type:'array'});
       const ws   = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+      const rows = XLSX.utils.sheet_to_json(ws, {defval:'', raw:false});
       if(!rows.length){ showToast('File is empty','red'); return; }
 
+      // ── EXACT ACT TEMPLATE COLUMN MAPPING ──
+      // ACT always sends: Account No. | Name | Mobile No. | Address 1 | SR Date |
+      //   SR Number | Area | Location | Base Batch | Telecaller | Outcome |
+      //   Appointment date | Remark | Executive | Outcome | Remark
       const keys = Object.keys(rows[0]);
-      const find = (...opts) => keys.find(k =>
-        opts.some(o => k.toLowerCase().replace(/[\s_\-\.]/g,'').includes(o))
-      ) || null;
 
-      const kAcc  = find('accountno','accno','account');
-      const kName = find('name','custname','bname','customername');
-      const kMob  = find('mobile','phone','mob','phno','contact');
-      const kAddr = find('address','addr');
-      const kArea = find('area','city','place');
-      // Fix: detect exec col even if header is just "NAME" (not same as customer name col)
-      let kExec = find('lname','executiveassigned','executive','exec','assignedto');
-      if(!kExec) kExec = keys.find(k => k.toLowerCase().replace(/[\s_\-\.]/g,'').includes('name') && k !== kName) || null;
-      const kTc   = find('telecallers','telecaller','calledby'); // removed 'tc' — matches 'batch'!
-      // Fix: prefer exact 'voc' col for appointment date (not 'sub voc')
-      let kAppt = keys.find(k => k.toLowerCase().replace(/[\s_\-\.]/g,'') === 'voc') || null;
-      if(!kAppt) kAppt = find('appointmentdate','apptdate','appointment');
-      // 'date' alone is too generic - matches 'SR Date'!
+      // Normalize key for matching (remove spaces, dots, special chars)
+      const norm = k => (k||'').toLowerCase().replace(/[\s_\-\.]/g,'');
+      const findKey = (...opts) => keys.find(k => opts.some(o => norm(k) === o || norm(k).includes(o))) || null;
 
-      console.log('Columns detected → kAcc:',kAcc,'kName:',kName,'kExec:',kExec,'kTc:',kTc,'kAppt:',kAppt);
+      // Fixed column mapping for ACT template
+      const kAcc  = findKey('accountno','accno');
+      const kName = keys.find(k => norm(k) === 'name') || findKey('name');
+      const kMob  = findKey('mobileno','mobile','phone');
+      const kAddr = findKey('address1','address');
+      const kArea = keys.find(k => norm(k) === 'area') || findKey('area');
+      const kCity = findKey('location','city');
+      const kBatch= findKey('basebatch','batch');
+      const kTc   = keys.find(k => norm(k) === 'telecaller') || findKey('telecaller');
+      const kExec = keys.find(k => norm(k) === 'executive')  || findKey('executive');
+      const kAppt = keys.find(k => norm(k) === 'appointmentdate') || findKey('appointmentdate','apptdate');
+
+      console.log('ACT Template Columns →',
+        'AccNo:',kAcc,'Name:',kName,'Mobile:',kMob,'Area:',kArea,
+        'TC:',kTc,'Exec:',kExec,'Appt:',kAppt,'Batch:',kBatch);
+
       adminAccounts = rows.map(r => ({
         accNo:      String(r[kAcc]  || '').trim(),
         name:       String(r[kName] || '').trim(),
         mobile:     String(r[kMob]  || '').trim().replace(/[^\d]/g,''),
-        address:    kAddr ? String(r[kAddr] || '').trim() : '',
+        address:    kAddr  ? String(r[kAddr] || '').trim() : '',
         area:       String(r[kArea] || '').trim(),
-        exec:       String(r[kExec] || '').trim().toUpperCase(),
-        telecaller: kTc   ? String(r[kTc]   || '').trim() : '',
-        apptDate:   kAppt ? String(r[kAppt] || '').replace('T00:00:00.000Z','').trim() : '',
-      })).filter(a => a.accNo);
+        city:       kCity  ? String(r[kCity] || '').trim() : 'Coimbatore',
+        batch:      kBatch ? String(r[kBatch]|| '').trim() : '',
+        exec:       kExec  ? String(r[kExec] || '').trim().toUpperCase() : '',
+        telecaller: kTc    ? String(r[kTc]   || '').trim() : '',
+        apptDate:   kAppt  ? String(r[kAppt] || '').replace('T00:00:00.000Z','').trim() : '',
+      })).filter(a => a.accNo && a.accNo !== 'undefined');
 
       document.getElementById('adminUZ').style.display = 'none';
       document.getElementById('adminFD').style.display = 'flex';
@@ -1398,119 +1407,187 @@ function buildAdminSummary(){
   document.getElementById('adminSummary').style.display='block';
 }
 
-async function pushToSheet(){
-  if(!adminAccounts.length){showToast('No accounts','red');return;}
-  const btn=document.getElementById('btnPush');
-  const msg=document.getElementById('adminMsg');
-  const rpt=document.getElementById('uploadReport');
-  btn.disabled=true; btn.textContent='📤 Pushing...';
-  msg.style.display='none'; rpt.style.display='none';
-  try{
-    const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const batch = 'VOA_'+new Date().toLocaleString('en-GB',{month:'short',year:'numeric'}).replace(' ','_').toUpperCase()+'_'+Date.now().toString().slice(-3);
-    const payload = JSON.stringify({type:'appointments',date:today,batch:batch,accounts:adminAccounts});
-    const result = await sendToSheet(payload) || {};
+async function downloadCleanBase(){
+  if(!adminAccounts.length){showToast('No accounts to download','red');return;}
+  const btn = document.getElementById('btnDownload');
+  const rpt = document.getElementById('uploadReport');
+  btn.disabled = true; btn.textContent = '⏳ Preparing...';
+  rpt.style.display = 'none';
+
+  try {
+    // ── Fetch historic + current month duplicates from sheet ──
+    const today = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const month = new Date().toLocaleString('en-GB',{month:'short',year:'numeric'}).replace(' ','_').toUpperCase();
+    const batch = 'VOA_'+month+'_'+Date.now().toString().slice(-3);
+
+    let historicSet   = new Set();
+    let withinMonthSet = new Set();
+
+    // Fetch historic account numbers from sheet
+    try {
+      const hr = await fetch(GS_URL+'?type=historic_list');
+      const hd = await hr.json();
+      (hd.accounts||[]).forEach(a => historicSet.add(String(a).trim()));
+    } catch(e){ console.warn('Historic fetch failed, skipping:', e); }
+
+    // Fetch current month base from sheet
+    try {
+      const mr = await fetch(GS_URL+'?type=appointments&exec=ALL');
+      const md = await mr.json();
+      (md.accounts||[]).forEach(a => withinMonthSet.add(String(a.accNo||'').trim()));
+    } catch(e){ console.warn('Month fetch failed, skipping:', e); }
+
+    // ── Separate fresh vs rejected ──
+    const freshAccounts    = [];
+    const rejectedAccounts = [];
+    adminAccounts.forEach(a => {
+      const accNo = String(a.accNo||'').trim();
+      if(historicSet.has(accNo)){
+        rejectedAccounts.push({...a, rejectReason:'Already in Historic Memory'});
+      } else if(withinMonthSet.has(accNo)){
+        rejectedAccounts.push({...a, rejectReason:'Already in Current Month Base'});
+      } else {
+        freshAccounts.push(a);
+      }
+    });
 
     const total         = adminAccounts.length;
-    const fresh         = result.fresh         ?? total;
-    const rejected      = result.rejected      ?? 0;
-    const histRejected  = result.histRejected  ?? rejected;
-    const monthRejected = result.monthRejected ?? 0;
+    const fresh         = freshAccounts.length;
+    const rejected      = rejectedAccounts.length;
+    const histRejected  = rejectedAccounts.filter(a=>a.rejectReason.includes('Historic')).length;
+    const monthRejected = rejectedAccounts.filter(a=>a.rejectReason.includes('Current Month')).length;
     const pct           = total > 0 ? Math.round((fresh/total)*100) : 0;
 
-    // Build report card
+    // ── Generate Clean Base Excel ──
+    const wb  = XLSX.utils.book_new();
+
+    // Sheet 1: CLEAN BASE — exact ACT template format
+    // Arun just fills Telecaller column (J) and pastes into Google Sheet!
+    const cleanHeaders = [
+      'Account No.', 'Name', 'Mobile No.', 'Address 1', 'SR Date ',
+      'SR Number', 'Area', 'Location', 'Base Batch ', 'Telecaller ',
+      'Outcome ', 'Appointment date ', 'Remark ', 'Executive', 'Outcome', 'Remark'
+    ];
+    const cleanRows = freshAccounts.map(a => [
+      a.accNo,           // A: Account No.
+      a.name,            // B: Name
+      a.mobile||'',      // C: Mobile No.
+      a.address||'',     // D: Address 1
+      '',                // E: SR Date (blank)
+      '',                // F: SR Number (blank)
+      a.area||'',        // G: Area
+      a.city||'Coimbatore', // H: Location
+      a.batch||batch,    // I: Base Batch
+      a.telecaller||'',  // J: Telecaller ← ARUN FILLS THIS!
+      '',                // K: Outcome (blank)
+      '',                // L: Appointment date (blank)
+      '',                // M: Remark (blank)
+      a.exec||'',        // N: Executive
+      '',                // O: Outcome (blank)
+      '',                // P: Remark (blank)
+    ]);
+    const cleanWS = XLSX.utils.aoa_to_sheet([cleanHeaders, ...cleanRows]);
+    cleanWS['!cols'] = [
+      {wch:16},{wch:22},{wch:14},{wch:50},{wch:12},
+      {wch:22},{wch:16},{wch:14},{wch:18},{wch:14},
+      {wch:14},{wch:16},{wch:20},{wch:12},{wch:14},{wch:20}
+    ];
+    // Highlight Telecaller column header in yellow so Arun knows to fill it
+    cleanWS['J1'] = {v:'Telecaller ', t:'s',
+      s:{fill:{fgColor:{rgb:'FFFF00'}},font:{bold:true}}};
+    XLSX.utils.book_append_sheet(wb, cleanWS, 'Clean_Base');
+
+    // Sheet 2: REJECTED (duplicates — for Arun's reference)
+    if(rejectedAccounts.length > 0){
+      const rejHeaders = ['Batch No.','Account No.','Name','Mobile','Area','Reject Reason','Date'];
+      const rejRows = rejectedAccounts.map(a => [
+        batch, a.accNo, a.name||'', a.mobile||'', a.area||'', a.rejectReason, today
+      ]);
+      const rejWS = XLSX.utils.aoa_to_sheet([rejHeaders, ...rejRows]);
+      rejWS['!cols'] = [{wch:20},{wch:16},{wch:22},{wch:14},{wch:16},{wch:35},{wch:14}];
+      XLSX.utils.book_append_sheet(wb, rejWS, 'Rejected_Duplicates');
+    }
+
+    // Sheet 3: SUMMARY
+    const summaryData = [
+      ['VOA Recovery — Upload Summary'],
+      [],
+      ['Batch Number', batch],
+      ['Upload Date',  today],
+      ['Total Received', total],
+      ['✅ Fresh / Workable', fresh],
+      ['❌ Total Rejected', rejected],
+      ['  📚 Historic Memory Duplicates', histRejected],
+      ['  📋 Current Month Duplicates',  monthRejected],
+      ['Workable %', pct+'%'],
+      [],
+      ['INSTRUCTIONS FOR ARUN:'],
+      ['1. Open Clean_Base sheet (same format as ACT template)'],
+      ['2. Fill Telecaller column (Col J) for each account'],
+      ['   Telecallers: Jamuna / Sudha / Sankari / Sabitha / Nithya / Priya / Jenifer'],
+      ['3. Copy ALL rows from Clean_Base (including header)'],
+      ['4. Paste into Google Sheet → Appointments tab'],
+      ['5. TC app will auto-load each telecaller their accounts!'],
+      ['6. Exec app will auto-load each executive their accounts!'],
+    ];
+    const sumWS = XLSX.utils.aoa_to_sheet(summaryData);
+    sumWS['!cols'] = [{wch:35},{wch:25}];
+    XLSX.utils.book_append_sheet(wb, sumWS, 'Summary');
+
+    // Download!
+    const fileName = 'VOA_Clean_Base_'+batch+'.xlsx';
+    XLSX.writeFile(wb, fileName);
+
+    // Show report card
     rpt.innerHTML = `
       <div style="background:#fff;border-radius:14px;border:1.5px solid #DDE3ED;overflow:hidden;margin-top:12px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
-        <!-- Header -->
-        <div style="background:linear-gradient(135deg,#1A0533,#311B92);padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div style="background:linear-gradient(135deg,#1B5E20,#2E7D32);padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
           <div>
-            <div style="font-size:13px;font-weight:800;color:#fff">📊 Upload Report</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.7);margin-top:2px">${today} · Batch: <b style="color:#fff">${batch}</b></div>
+            <div style="font-size:13px;font-weight:800;color:#fff">✅ Clean Base Ready!</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.8);margin-top:2px">${today} · Batch: <b style="color:#fff">${batch}</b></div>
           </div>
-          <div style="background:rgba(255,255,255,.15);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#fff">${total} received</div>
+          <div style="background:rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#fff">${total} received</div>
         </div>
-        <!-- Stats row -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid #EEE">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #EEE">
           <div style="padding:14px;text-align:center;border-right:1px solid #EEE">
             <div style="font-size:26px;font-weight:800;color:#311B92">${total}</div>
-            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">📥 Total Received</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;margin-top:2px">📥 Received</div>
           </div>
-          <div style="padding:14px;text-align:center;background:#F6FDF7">
+          <div style="padding:14px;text-align:center;border-right:1px solid #EEE;background:#F6FDF7">
             <div style="font-size:26px;font-weight:800;color:#2E7D32">${fresh}</div>
-            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">✅ Fresh / Workable</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;margin-top:2px">✅ Fresh</div>
+          </div>
+          <div style="padding:14px;text-align:center;background:#FFF5F5">
+            <div style="font-size:26px;font-weight:800;color:#C62828">${rejected}</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;margin-top:2px">❌ Rejected</div>
           </div>
         </div>
-        <!-- Duplicate breakdown row -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid #EEE">
-          <div style="padding:10px;text-align:center;border-right:1px solid #EEE;background:#FFF5F5">
-            <div style="font-size:22px;font-weight:800;color:#C62828">${rejected}</div>
-            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">❌ Total Rejected</div>
-          </div>
-          <div style="padding:10px;text-align:center;border-right:1px solid #EEE;background:#FFF3E0">
-            <div style="font-size:22px;font-weight:800;color:#E65100">${histRejected}</div>
-            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">📚 Historic Memory</div>
-          </div>
-          <div style="padding:10px;text-align:center;background:#FCE4EC">
-            <div style="font-size:22px;font-weight:800;color:#880E4F">${monthRejected}</div>
-            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">📋 This Month Batch</div>
-          </div>
-        </div>
-        <!-- Progress bar -->
         <div style="padding:12px 16px;border-bottom:1px solid #EEE">
           <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:10px;font-weight:700;color:#2E7D32">✅ Workable ${pct}%</span>
-            <span style="font-size:10px;font-weight:700;color:#C62828">❌ Duplicate ${100-pct}%</span>
+            <span style="font-size:10px;font-weight:700;color:#2E7D32">✅ Fresh ${pct}%</span>
+            <span style="font-size:10px;font-weight:700;color:#C62828">❌ Rejected ${100-pct}%</span>
           </div>
           <div style="height:10px;background:#FFEBEE;border-radius:20px;overflow:hidden">
-            <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#2E7D32,#43A047);border-radius:20px;transition:width .6s ease"></div>
+            <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#2E7D32,#43A047);border-radius:20px"></div>
           </div>
         </div>
-        <!-- Info rows -->
-        <div style="padding:12px 16px">
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F5F5F5">
-            <span style="font-size:11px;color:#7A8899">📋 Batch Number</span>
-            <span style="font-size:11px;font-weight:800;color:#311B92;font-family:monospace">${batch}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F5F5F5">
-            <span style="font-size:11px;color:#7A8899">📅 Upload Date</span>
-            <span style="font-size:11px;font-weight:700;color:#0F1923">${today}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F5F5F5">
-            <span style="font-size:11px;color:#7A8899">📌 Saved to Sheet</span>
-            <span style="font-size:11px;font-weight:700;color:#2E7D32">Appointments tab ✅</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0">
-            <span style="font-size:11px;color:#7A8899">🗑️ Duplicates logged</span>
-            <span style="font-size:11px;font-weight:700;color:#C62828">TC_Base_Rejected tab ✅</span>
-          </div>
+        ${histRejected>0?`<div style="margin:8px 16px;background:#FFF3E0;border:1px solid #FFCC80;border-radius:9px;padding:9px 12px;font-size:11px;color:#E65100;font-weight:600">📚 ${histRejected} accounts already in Historic Memory</div>`:''}
+        ${monthRejected>0?`<div style="margin:8px 16px 0;background:#FCE4EC;border:1px solid #F48FB1;border-radius:9px;padding:9px 12px;font-size:11px;color:#880E4F;font-weight:600">📋 ${monthRejected} accounts already in this month's base</div>`:''}
+        <div style="margin:12px 16px 14px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:9px;padding:10px 12px;font-size:11px;color:#1B5E20;font-weight:600">
+          📋 <b>Next step:</b> Open downloaded Excel → Fill <b>Telecaller</b> column → Paste into Google Sheet Appointments tab!
         </div>
-        ${histRejected > 0 ? `
-        <div style="margin:0 16px 8px;background:#FFF3E0;border:1px solid #FFCC80;border-radius:9px;padding:9px 12px;font-size:11px;color:#E65100;font-weight:600">
-          📚 <b>${histRejected} accounts</b> already in Historic Memory (previously collected/closed).
-          ACT should not send these again!
-        </div>` : ''}
-        ${monthRejected > 0 ? `
-        <div style="margin:0 16px 8px;background:#FCE4EC;border:1px solid #F48FB1;border-radius:9px;padding:9px 12px;font-size:11px;color:#880E4F;font-weight:600">
-          📋 <b>${monthRejected} accounts</b> already in this month's working base!
-          ACT sent same accounts in a previous batch this month!
-        </div>` : ''}
-        ${rejected === 0 ? `
-        <div style="margin:0 16px 14px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:9px;padding:9px 12px;font-size:11px;color:#2E7D32;font-weight:600">
-          ✅ No duplicates found! All ${total} accounts are fresh and workable!
-        </div>` : '<div style="margin-bottom:14px"></div>'}
       </div>`;
-    rpt.style.display='block';
-    showToast('✅ '+fresh+' saved, '+rejected+' rejected!');
-  }catch(e){
-    msg.className='stmsg err';
-    msg.textContent='❌ Error: '+e.message;
-    msg.style.display='block';
-    showToast('Push failed','red');
+    rpt.style.display = 'block';
+    showToast('✅ Downloaded! '+fresh+' clean accounts');
+
+  } catch(err){
+    showToast('❌ Error: '+err.message,'red');
+    console.error(err);
   }
-  btn.disabled=false; btn.textContent='🚀 Push to Google Sheet';
+  btn.disabled=false; btn.textContent='⬇️ Download Clean Base';
 }
 
-// ══ SEND REPORT ══
+
 async function genAndShare(){
   if(!visits.length) return;
 
