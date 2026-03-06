@@ -381,6 +381,23 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 .ef-btn.on{background:var(--red);border-color:var(--red);color:#fff}
 .mgr-acc-list{padding:0 14px}
 /* ══ PERFORMANCE REPORT ══ */
+/* ══ ASSIGN EXEC ══ */
+.assign-row{background:var(--surf);border:1px solid var(--bdr);border-left:3px solid var(--blue);
+  border-radius:11px;padding:11px 12px;margin-bottom:9px}
+.assign-row.assigned{border-left-color:var(--green)}
+.assign-acc{font-family:var(--M);font-size:13px;font-weight:700;color:var(--blue);margin-bottom:2px}
+.assign-name{font-size:13px;font-weight:700;margin-bottom:6px}
+.assign-meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-bottom:8px}
+.assign-meta span{font-size:11px;color:var(--muted)}
+.assign-meta span b{color:var(--text);font-weight:600}
+.assign-sel{width:100%;background:#fff;border:1.5px solid var(--bdr);color:var(--text);
+  font-family:var(--F);font-size:12px;padding:8px 12px;border-radius:9px;outline:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;-webkit-appearance:none}
+.assign-sel:focus{border-color:var(--blue)}
+.assign-sel.picked{border-color:var(--green);background-color:rgba(46,125,50,.04)}
+.assign-tc-badge{font-size:10px;font-weight:700;color:var(--blue);
+  background:rgba(21,101,192,.08);padding:2px 9px;border-radius:20px;margin-bottom:7px;display:inline-block}
 .perf-period-btn{flex:1;padding:7px 4px;border-radius:8px;border:1.5px solid var(--bdr);
   background:#fff;font-family:var(--F);font-size:11px;font-weight:700;color:var(--muted);cursor:pointer}
 .perf-period-btn.on{background:var(--red);border-color:var(--red);color:#fff}
@@ -694,6 +711,21 @@ textarea.fi{resize:none;height:60px;font-size:12px}
       </div>
     </div>
 
+    <!-- ══ ASSIGN EXECUTIVE ══ -->
+    <div class="sec">
+      <div class="sec-t">✅ Assign Executive to Confirmed Appointments</div>
+      <div class="card">
+        <button class="btn btn-red" onclick="loadConfirmedAppts()" style="margin-bottom:10px">🔄 Load Confirmed Appointments</button>
+        <div id="assignLoading" style="display:none" class="loading-b">⏳ Loading confirmed appointments...</div>
+        <div id="assignEmpty"   style="display:none" class="loading-b">🎉 No pending assignments!</div>
+        <div id="assignList"></div>
+        <div id="assignSaveWrap" style="display:none;margin-top:10px">
+          <button class="btn btn-grn" onclick="saveExecAssignments()">💾 Save All Assignments</button>
+          <div class="stmsg" id="assignMsg"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ══ PERFORMANCE REPORT ══ -->
     <div class="sec">
       <div class="sec-t">📊 Performance Report</div>
@@ -770,7 +802,7 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 // ══════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════
-const GS_URL = 'https://script.google.com/macros/s/AKfycbwPh5EvA1W5mRmywFcLF-lEhG2h_BljHfFxARkmZx4uz5YTQr3kowBJ_fMrOX5vi31x/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbzx89LgDS3f7_eddmWd7v0FaZ_THxmWxyI1B_zreSSCYJ7L5LM14Y0MZ1DHAhNEAEco/exec';
 
 const EXECUTIVES = [
   {name:'Suresh',   role:'Executive',     emoji:'🏍️', type:'exec'},
@@ -1426,7 +1458,7 @@ function buildWAText(){
   const coll=visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected').length;
   const lines=['*VOA Recovery — Field Report* 📋','','👤 Executive: *'+USER+'*','📅 Date: *'+today+'*','📊 Total: *'+visits.length+'*  |  Collected: *'+coll+'*','','*Summary:*'];
   visits.forEach((v,i)=>lines.push((i+1)+'. *'+v.accNo+'* ('+v.name+') → '+v.outcome+(v.remarks?' — '+v.remarks:'')));
-  lines.push('','_Excel attached_');
+  lines.push('','_Excel attached_','','🔗 App: https://stalinpandian.github.io/VOA_Executive_app');
   return lines.join('\n');
 }
 
@@ -1633,6 +1665,133 @@ function switchMgrTab(tab){
 // ══ PERFORMANCE REPORT ════════════════════════════════
 let perfPeriod = 'today';
 let perfData   = [];
+
+// ══════════════════════════════════════════════════════
+// ASSIGN EXECUTIVE TO CONFIRMED APPOINTMENTS
+// ══════════════════════════════════════════════════════
+let confirmedAppts = [];
+
+async function loadConfirmedAppts(){
+  const loadDiv  = document.getElementById('assignLoading');
+  const emptyDiv = document.getElementById('assignEmpty');
+  const listDiv  = document.getElementById('assignList');
+  const saveWrap = document.getElementById('assignSaveWrap');
+
+  loadDiv.style.display='block';
+  emptyDiv.style.display='none';
+  listDiv.innerHTML='';
+  saveWrap.style.display='none';
+
+  try{
+    // Fetch ALL accounts — filter for confirmed (TC outcome = Appointment Fixed) + no exec yet
+    const r = await fetch(GS_URL+'?type=appointments&tc=ALL');
+    const d = await r.json();
+    const all = d.accounts || [];
+
+    // Show accounts where:
+    // 1. TC Outcome = Appointment Fixed
+    // 2. Executive is empty/not assigned
+    confirmedAppts = all.filter(a =>
+      (a.tcOutcome||'').toLowerCase().includes('appointment fixed') &&
+      !(a.executive||a.exec||'').trim()
+    );
+
+    loadDiv.style.display='none';
+
+    if(!confirmedAppts.length){
+      emptyDiv.style.display='block';
+      return;
+    }
+
+    // Build assign rows
+    const execOpts = EXECUTIVES
+      .filter(e=>e.type==='exec')
+      .map(e=>`<option value="${e.name}">${e.emoji} ${e.name}</option>`)
+      .join('');
+
+    listDiv.innerHTML = confirmedAppts.map((a,i)=>`
+      <div class="assign-row" id="arow_${i}">
+        <div class="assign-acc">${a.accNo}</div>
+        <div class="assign-name">${a.name}</div>
+        <div class="assign-meta">
+          ${a.mobile?`<span>📞 <b>${a.mobile}</b></span>`:''}
+          ${a.area?`<span>📍 <b>${a.area}</b></span>`:''}
+          ${a.apptDate?`<span>📅 <b>${a.apptDate}</b></span>`:''}
+        </div>
+        ${a.telecaller?`<div class="assign-tc-badge">📞 TC: ${a.telecaller}</div>`:''}
+        <select class="assign-sel" id="asel_${i}"
+          onchange="onExecPicked(${i})">
+          <option value="">— Assign Executive —</option>
+          ${execOpts}
+        </select>
+      </div>`).join('');
+
+    saveWrap.style.display='block';
+    showToast('✅ '+confirmedAppts.length+' appointments to assign!');
+  }catch(err){
+    loadDiv.style.display='none';
+    listDiv.innerHTML='<div class="loading-b">❌ Could not load — check connection</div>';
+  }
+}
+
+function onExecPicked(idx){
+  const sel = document.getElementById('asel_'+idx);
+  const row = document.getElementById('arow_'+idx);
+  if(sel && row){
+    sel.classList.toggle('picked', !!sel.value);
+    row.classList.toggle('assigned', !!sel.value);
+  }
+}
+
+async function saveExecAssignments(){
+  const btn = document.querySelector('#assignSaveWrap .btn-grn');
+  const msg = document.getElementById('assignMsg');
+
+  // Collect all assignments
+  const assignments = [];
+  confirmedAppts.forEach((a,i)=>{
+    const sel = document.getElementById('asel_'+i);
+    const exec = sel ? sel.value.trim() : '';
+    if(exec){
+      assignments.push({accNo: String(a.accNo), exec});
+    }
+  });
+
+  if(!assignments.length){
+    showToast('No executives assigned yet!','red');
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent='💾 Saving...';
+  msg.style.display='none';
+
+  try{
+    const today = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const payload = JSON.stringify({
+      type: 'assign_exec',
+      date: today,
+      assignments
+    });
+    await sendToSheet(payload);
+
+    msg.className='stmsg ok';
+    msg.innerHTML='✅ <b>'+assignments.length+' executives assigned!</b><br>'
+      +'<span style="font-size:11px;font-weight:400">Executives can now see these accounts in their app!</span>';
+    msg.style.display='block';
+    showToast('✅ '+assignments.length+' assigned!');
+
+    // Reload list to show remaining unassigned
+    setTimeout(loadConfirmedAppts, 1500);
+  }catch(err){
+    msg.className='stmsg err';
+    msg.textContent='❌ Error: '+err.message;
+    msg.style.display='block';
+    showToast('Failed to save','red');
+  }
+  btn.disabled=false;
+  btn.textContent='💾 Save All Assignments';
+}
 
 function setPerfPeriod(p){
   perfPeriod = p;
