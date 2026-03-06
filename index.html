@@ -558,16 +558,27 @@ textarea.fi{resize:none;height:60px;font-size:12px}
             <label>▼ Visit Outcome</label>
             <select class="fi" id="outcome">
               <option value="">— Select Outcome —</option>
+              <optgroup label="✅ Collected">
               <option value="Collected">✅ Collected</option>
               <option value="Already Collected">✅ Already Collected</option>
+              </optgroup>
+              <optgroup label="⏳ Pending / Issues">
               <option value="Refixed Date">🔄 Refixed Date</option>
               <option value="Junction Box Issue">🔧 Junction Box Issue</option>
               <option value="Refund Issue">💰 Refund Issue</option>
               <option value="Change of Address">📍 Change of Address</option>
-              <option value="Own/Lost Router">📦 Own / Lost Router</option>
               <option value="Reconnection">🔁 Reconnection</option>
               <option value="Line Active">📶 Line Active</option>
               <option value="Call Not Attended">📵 Call Not Attended</option>
+              </optgroup>
+              <optgroup label="🔒 Closure (→ Historic Memory)">
+              <option value="Own Router">📦 Own Router</option>
+              <option value="Router Lost">📦 Router Lost</option>
+              <option value="Router Missing">📦 Router Missing</option>
+              <option value="Wrong Number">❌ Wrong Number</option>
+              <option value="Address Not Found">🏚️ Address Not Found</option>
+              <option value="Refused to Return">🚫 Refused to Return</option>
+              </optgroup>
             </select>
           </div>
           <div class="field">
@@ -1205,7 +1216,7 @@ function addVisit(){
 // ══ RENDER EXEC ══
 function render(){
   const total=visits.length;
-  const coll=visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected').length;
+  const coll=visits.filter(v=>['Collected','Already Collected'].includes(v.outcome)).length;
   document.getElementById('sTotal').textContent=total;
   document.getElementById('sColl').textContent=coll;
   document.getElementById('sPend').textContent=total-coll;
@@ -1214,7 +1225,7 @@ function render(){
   document.getElementById('vcntTxt').textContent=total+' visit'+(total!==1?'s':'')+' logged today';
   const log=document.getElementById('visitLog');
   if(!total){log.innerHTML='<div class="empty-state"><div class="empty-ic">📋</div>No visits yet.</div>';return;}
-  const oc=o=>o==='Collected'||o==='Already Collected'?'var(--green)':o==='Change of Address'||o==='Call Not Attended'?'var(--red)':'var(--orange)';
+  const oc=o=>['Collected','Already Collected'].includes(o)?'var(--green)':['Own Router','Router Lost','Router Missing','Wrong Number','Address Not Found','Refused to Return'].includes(o)?'#4A148C':o==='Change of Address'||o==='Call Not Attended'?'var(--red)':'var(--orange)';
   const cls=o=>o==='Collected'||o==='Already Collected'?'vc':o==='Change of Address'||o==='Call Not Attended'?'vi':'vp';
   log.innerHTML=[...visits].reverse().map(v=>`
     <div class="vcard ${cls(v.outcome)}">
@@ -1400,10 +1411,12 @@ async function pushToSheet(){
     const payload = JSON.stringify({type:'appointments',date:today,batch:batch,accounts:adminAccounts});
     const result = await sendToSheet(payload) || {};
 
-    const total    = adminAccounts.length;
-    const fresh    = result.fresh    ?? total;
-    const rejected = result.rejected ?? 0;
-    const pct      = total > 0 ? Math.round((fresh/total)*100) : 0;
+    const total         = adminAccounts.length;
+    const fresh         = result.fresh         ?? total;
+    const rejected      = result.rejected      ?? 0;
+    const histRejected  = result.histRejected  ?? rejected;
+    const monthRejected = result.monthRejected ?? 0;
+    const pct           = total > 0 ? Math.round((fresh/total)*100) : 0;
 
     // Build report card
     rpt.innerHTML = `
@@ -1417,18 +1430,29 @@ async function pushToSheet(){
           <div style="background:rgba(255,255,255,.15);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#fff">${total} received</div>
         </div>
         <!-- Stats row -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid #EEE">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid #EEE">
           <div style="padding:14px;text-align:center;border-right:1px solid #EEE">
             <div style="font-size:26px;font-weight:800;color:#311B92">${total}</div>
-            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Total Received</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">📥 Total Received</div>
           </div>
-          <div style="padding:14px;text-align:center;border-right:1px solid #EEE;background:#F6FDF7">
+          <div style="padding:14px;text-align:center;background:#F6FDF7">
             <div style="font-size:26px;font-weight:800;color:#2E7D32">${fresh}</div>
             <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">✅ Fresh / Workable</div>
           </div>
-          <div style="padding:14px;text-align:center;background:#FFF5F5">
-            <div style="font-size:26px;font-weight:800;color:#C62828">${rejected}</div>
-            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">❌ Historic Duplicates</div>
+        </div>
+        <!-- Duplicate breakdown row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid #EEE">
+          <div style="padding:10px;text-align:center;border-right:1px solid #EEE;background:#FFF5F5">
+            <div style="font-size:22px;font-weight:800;color:#C62828">${rejected}</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">❌ Total Rejected</div>
+          </div>
+          <div style="padding:10px;text-align:center;border-right:1px solid #EEE;background:#FFF3E0">
+            <div style="font-size:22px;font-weight:800;color:#E65100">${histRejected}</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">📚 Historic Memory</div>
+          </div>
+          <div style="padding:10px;text-align:center;background:#FCE4EC">
+            <div style="font-size:22px;font-weight:800;color:#880E4F">${monthRejected}</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">📋 This Month Batch</div>
           </div>
         </div>
         <!-- Progress bar -->
@@ -1460,16 +1484,20 @@ async function pushToSheet(){
             <span style="font-size:11px;font-weight:700;color:#C62828">TC_Base_Rejected tab ✅</span>
           </div>
         </div>
-        ${rejected > 0 ? `
-        <!-- Warning -->
-        <div style="margin:0 16px 14px;background:#FFF3CD;border:1px solid #FFD700;border-radius:9px;padding:9px 12px;font-size:11px;color:#856404;font-weight:600">
-          ⚠️ ACT gave <b>${rejected} duplicate accounts</b> that were already in Historic Memory!
-          Check <b>TC_Base_Rejected</b> tab for the full list.
-        </div>` : `
-        <!-- All clean -->
+        ${histRejected > 0 ? `
+        <div style="margin:0 16px 8px;background:#FFF3E0;border:1px solid #FFCC80;border-radius:9px;padding:9px 12px;font-size:11px;color:#E65100;font-weight:600">
+          📚 <b>${histRejected} accounts</b> already in Historic Memory (previously collected/closed).
+          ACT should not send these again!
+        </div>` : ''}
+        ${monthRejected > 0 ? `
+        <div style="margin:0 16px 8px;background:#FCE4EC;border:1px solid #F48FB1;border-radius:9px;padding:9px 12px;font-size:11px;color:#880E4F;font-weight:600">
+          📋 <b>${monthRejected} accounts</b> already in this month's working base!
+          ACT sent same accounts in a previous batch this month!
+        </div>` : ''}
+        ${rejected === 0 ? `
         <div style="margin:0 16px 14px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:9px;padding:9px 12px;font-size:11px;color:#2E7D32;font-weight:600">
           ✅ No duplicates found! All ${total} accounts are fresh and workable!
-        </div>`}
+        </div>` : '<div style="margin-bottom:14px"></div>'}
       </div>`;
     rpt.style.display='block';
     showToast('✅ '+fresh+' saved, '+rejected+' rejected!');
@@ -1503,9 +1531,9 @@ async function genAndShare(){
     const allR=[['VOA — EXECUTIVE VISIT REPORT'],['Executive: '+USER,'','Date: '+today],[],COLS];
     visits.forEach(v=>allR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,v.date,v.time,v.timestamp||v.date+' '+v.time,v.outcome,v.remarks]));
     const pendR=[['VOA — PENDING'],['Executive: '+USER,'','Date: '+today],[],COLS];
-    visits.filter(v=>v.outcome!=='Collected'&&v.outcome!=='Already Collected').forEach(v=>pendR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,v.date,v.time,v.timestamp||v.date+' '+v.time,v.outcome,v.remarks]));
+    visits.filter(v=>!['Collected','Already Collected','Own Router','Router Lost','Router Missing','Wrong Number','Address Not Found','Refused to Return'].includes(v.outcome)).forEach(v=>pendR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,v.date,v.time,v.timestamp||v.date+' '+v.time,v.outcome,v.remarks]));
     const collR=[['VOA — COLLECTED'],['Executive: '+USER,'','Date: '+today],[],COLS];
-    visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected').forEach(v=>collR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,v.date,v.time,v.timestamp||v.date+' '+v.time,v.outcome,v.remarks]));
+    visits.filter(v=>['Collected','Already Collected','Own Router','Router Lost','Router Missing','Wrong Number','Address Not Found','Refused to Return'].includes(v.outcome)).forEach(v=>collR.push([v.accNo,v.name,v.mobile,v.area,v.telecaller,v.exec,v.date,v.time,v.timestamp||v.date+' '+v.time,v.outcome,v.remarks]));
     const CW=[{wch:16},{wch:22},{wch:13},{wch:13},{wch:12},{wch:12},{wch:13},{wch:10},{wch:20},{wch:22},{wch:28}];
     ['All_Visits','Pending','Collected'].forEach((nm,i)=>{
       const r=[allR,pendR,collR][i];
@@ -1535,7 +1563,7 @@ function fallback(wb,fname){
 
 function buildWAText(){
   const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  const coll=visits.filter(v=>v.outcome==='Collected'||v.outcome==='Already Collected').length;
+  const coll=visits.filter(v=>['Collected','Already Collected'].includes(v.outcome)).length;
   const lines=['*VOA Recovery — Field Report* 📋','','👤 Executive: *'+USER+'*','📅 Date: *'+today+'*','📊 Total: *'+visits.length+'*  |  Collected: *'+coll+'*','','*Summary:*'];
   visits.forEach((v,i)=>lines.push((i+1)+'. *'+v.accNo+'* ('+v.name+') → '+v.outcome+(v.remarks?' — '+v.remarks:'')));
   lines.push('','_Excel attached_','','🔗 App: https://stalinpandian.github.io/VOA_Executive_app');
