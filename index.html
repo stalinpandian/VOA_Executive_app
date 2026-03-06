@@ -316,14 +316,20 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 .toast.show{opacity:1}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:4px}
 /* ══ ACCOUNT CARDS ══ */
-.acc-card{background:#fff;border:1px solid var(--bdr);border-radius:var(--r);
+/* ══ NEW EXEC CARDS ══ */
+.acc-card{background:#fff;border:1px solid var(--bdr);border-left:3px solid var(--bdr);border-radius:14px;
   padding:13px 14px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.04);
   animation:up .15s ease}
-.acc-card-no{font-family:var(--M);font-size:15px;font-weight:800;color:var(--red);margin-bottom:3px}
-.acc-card-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:7px}
-.acc-card-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px}
+.acc-card-no{font-family:var(--M);font-size:13px;font-weight:800;color:var(--red);margin-bottom:2px}
+.acc-card-name{font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px}
+.acc-card-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:8px}
 .acc-card-meta span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
 .acc-card-meta span b{color:var(--text);font-weight:600}
+.acc-card-addr{display:flex;gap:8px;margin-bottom:9px;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:10px;padding:9px 11px}
+.acc-card-addr-txt{font-size:11px;color:#1e293b;font-weight:600;line-height:1.7;word-break:break-word}
+.acc-card-tc-chip{display:flex;align-items:center;justify-content:space-between;
+  padding:6px 10px;background:linear-gradient(135deg,#EDE7F6,#F3E5F5);
+  border:1px solid #CE93D8;border-radius:9px;margin-bottom:8px}
 .acc-card-tc{display:inline-flex;align-items:center;gap:5px;
   background:rgba(21,101,192,.07);color:var(--blue);
   font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px}
@@ -1614,32 +1620,129 @@ let _pendIdx = 0;
 
 function buildAccCard(a, isPending){
   const d = a.daysPending||0;
-  const statusBadge = isPending
-    ? (d>=6?'<span class="acc-card-status" style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;background:rgba(211,47,47,.1);color:var(--red)">🔴 '+d+'d</span>'
-      :d>=3?'<span class="acc-card-status acs-pending">🟡 '+d+'d</span>'
-      :'<span class="acc-card-status acs-fresh">🟢 Today</span>')
-    : '';
-  const execTag = (a.execName||a.exec) ? '<span style="font-size:10px;color:var(--muted);font-weight:600">👤 '+(a.execName||a.exec)+'</span>' : '';
-  let btnHtml = '';
+  const mobile = String(a.mobile||'').replace(/\D/g,'');
+
+  // Status badge + card border color
+  let badgeTxt='', badgeStyle='', borderColor='var(--bdr)', cardBg='#fff';
+  if(isPending){
+    if(d>=6){
+      badgeTxt='🔴 '+d+' days';
+      badgeStyle='background:#FFEBEE;color:#C62828;border:1px solid #EF9A9A';
+      borderColor='#C62828'; cardBg='#fff5f5';
+    } else if(d>=3){
+      badgeTxt='🟡 '+d+' days';
+      badgeStyle='background:#FFF3E0;color:#E65100;border:1px solid #FFCC80';
+      borderColor='#E65100'; cardBg='#fff8f5';
+    } else {
+      badgeTxt='🟢 Today';
+      badgeStyle='background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7';
+      borderColor='#2E7D32'; cardBg='#f6fdf7';
+    }
+  }
+
+  // Last outcome color
+  const lo = (a.lastOutcome||'').toLowerCase();
+  let loColor = '#E65100';
+  if(lo.includes('collected')) loColor='#2E7D32';
+  else if(lo.includes('issue')||lo.includes('refund')||lo.includes('reconnect')) loColor='#F57F17';
+
+  let html = '';
+  html += '<div class="acc-card" style="border-left:3px solid '+borderColor+';background:'+cardBg+';padding:13px 14px;margin-bottom:10px;border-radius:14px;box-shadow:0 1px 6px rgba(0,0,0,.05)">';
+
+  // ── TOP: acc no + badge
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">';
+  html += '<div class="acc-card-no">'+a.accNo+'</div>';
+  if(badgeTxt) html += '<span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;'+badgeStyle+'">'+badgeTxt+'</span>';
+  html += '</div>';
+
+  // ── NAME
+  html += '<div class="acc-card-name">'+a.name+'</div>';
+  html += '<div style="height:1px;background:#EEE;margin:7px 0"></div>';
+
+  // ── MOBILE + CALL BUTTON
+  if(mobile){
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">';
+    html += '<div style="display:flex;align-items:center;gap:7px">';
+    html += '<span>📞</span>';
+    html += '<span style="font-size:15px;font-weight:800;font-family:var(--M)">'+a.mobile+'</span>';
+    html += '</div>';
+    // Smart call button: mobile = dial, desktop = copy
+    html += '<div style="display:flex;gap:6px">';
+    html += '<a href="tel:'+mobile+'" style="display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#2E7D32,#1B5E20);color:#fff;padding:7px 14px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:800;box-shadow:0 3px 10px rgba(46,125,50,.3)">📞 Call</a>';
+    html += '<button onclick="copyNum(\''+mobile+'\')" style="display:inline-flex;align-items:center;gap:4px;background:#F3F4F6;border:1.5px solid #DDE3ED;color:#374151;padding:7px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer">📋 Copy</button>';
+    html += '</div></div>';
+  }
+
+  // ── AREA
+  if(a.area){
+    html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
+    html += '<span>📍</span><span style="font-size:13px;font-weight:700">'+a.area+'</span>';
+    html += '</div>';
+  }
+
+  // ── FULL ADDRESS + MAP BUTTON
+  if(a.address){
+    const mapQuery = encodeURIComponent(a.address);
+    const mapUrl = 'https://www.google.com/maps/search/?api=1&query='+mapQuery;
+    html += '<div class="acc-card-addr">';
+    html += '<span style="font-size:14px;flex-shrink:0;margin-top:2px">🏠</span>';
+    html += '<div style="flex:1">';
+    html += '<span class="acc-card-addr-txt">'+a.address+'</span>';
+    html += '<div style="margin-top:7px">';
+    html += '<a href="'+mapUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:5px;';
+    html += 'background:linear-gradient(135deg,#1565C0,#0D47A1);color:#fff;';
+    html += 'padding:5px 13px;border-radius:20px;text-decoration:none;';
+    html += 'font-size:11px;font-weight:800;box-shadow:0 2px 8px rgba(21,101,192,.3)">🗺️ Open in Maps</a>';
+    html += '</div></div></div>';
+  }
+
+  html += '<div style="height:1px;background:#EEE;margin:7px 0"></div>';
+
+  // ── APPT DATE
+  if(a.apptDate){
+    html += '<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">';
+    html += '<span>📅</span>';
+    html += '<span style="font-size:11px;color:var(--muted);font-weight:600">Appointment:</span>';
+    html += '<span style="font-size:13px;font-weight:800;color:#1565C0">'+a.apptDate+'</span>';
+    html += '</div>';
+  }
+
+  // ── TC CHIP
+  if(a.telecaller){
+    html += '<div class="acc-card-tc-chip">';
+    html += '<span style="font-size:9px;color:#4A148C;font-weight:800;text-transform:uppercase;letter-spacing:.5px">🎧 Telecaller</span>';
+    html += '<span style="font-size:12px;font-weight:800;color:#4A148C">'+a.telecaller+'</span>';
+    html += '</div>';
+  }
+
+  // ── LAST OUTCOME
+  if(isPending && a.lastOutcome){
+    html += '<div style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;';
+    html += 'background:rgba(230,81,0,.07);color:'+loColor+';display:inline-block;margin-bottom:8px">';
+    html += '🔄 Last: '+a.lastOutcome+'</div>';
+  }
+
+  // ── VIEW DETAILS BUTTON
   if(isPending){
     const idx = _pendIdx++;
     _pendCards[idx] = a;
-    btnHtml = '<button class="acc-card-btn" onclick="_openCard('+idx+')">🔍 View Details</button>';
+    html += '<button class="acc-card-btn" onclick="_openCard('+idx+')" style="margin-top:4px">📋 View & Log Visit →</button>';
   }
-  return '<div class="acc-card">'
-    + '<div style="display:flex;align-items:flex-start;justify-content:space-between">'
-    + '<div class="acc-card-no">'+a.accNo+'</div>'+statusBadge+'</div>'
-    + '<div class="acc-card-name">'+a.name+'</div>'
-    + '<div class="acc-card-meta">'
-    + (a.mobile?'<span>📞 <b>'+a.mobile+'</b></span>':'')
-    + (a.area?'<span>📍 <b>'+a.area+'</b></span>':'')
-    + (a.apptDate?'<span>📅 <b>'+a.apptDate+'</b></span>':'')
-    + execTag+'</div>'
-    + (a.telecaller?'<div class="acc-card-tc">🎧 Called by: '+a.telecaller+'</div>':'')
-    + (isPending&&a.lastOutcome?'<div style="font-size:11px;color:var(--orange);margin-bottom:8px;font-weight:600">Last: '+a.lastOutcome+'</div>':'')
-    + btnHtml+'</div>';
+
+  html += '</div>';
+  return html;
 }
 function _openCard(idx){ openPendModal(_pendCards[idx]); }
+function copyNum(num){
+  navigator.clipboard.writeText(num).then(()=>showToast('📋 Number copied!','green')).catch(()=>{
+    // fallback
+    const el=document.createElement('input');
+    el.value=num; document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast('📋 Number copied!','green');
+  });
+}
 
 
 // ══ GAUTHAM DUAL ROLE TAB SWITCH ══════════════════════
