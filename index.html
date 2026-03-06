@@ -802,7 +802,7 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 // ══════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════
-const GS_URL = 'https://script.google.com/macros/s/AKfycbyJkv9-CrZ3g0140u5GLDD2NOz0nHehU8p-RElkeVCD2oycNWNeU9rjPVuJSSJVhMRP/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbwuho7v-DtUVrw7oYUjwU76UUqcNjNbzGbzehB3UIrpt-WihCI_S5WgUdTBKX5JPt-4/exec';
 
 const EXECUTIVES = [
   {name:'Suresh',   role:'Executive',     emoji:'🏍️', type:'exec'},
@@ -1390,7 +1390,10 @@ async function pushToSheet(){
     const payload = JSON.stringify({type:'appointments',date:today,accounts:adminAccounts});
     await sendToSheet(payload);
     msg.className='stmsg ok';
-    msg.innerHTML='✅ <b>'+adminAccounts.length+' accounts pushed!</b><br><span style="font-size:11px;font-weight:400">Check Google Sheet → Appointments tab to confirm.</span>';
+    const res = await (await fetch(GS_URL+'?type=check')).json().catch(()=>({}));
+    msg.innerHTML='✅ <b>'+adminAccounts.length+' accounts processed!</b><br>'
+      +'<span style="font-size:11px;font-weight:400">Check Google Sheet → Appointments tab to confirm.<br>'
+      +'Historic duplicates removed automatically → check TC_Base_Rejected tab!</span>';
     msg.style.display='block';
     showToast('✅ Pushed!');
   }catch(e){
