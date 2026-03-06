@@ -819,7 +819,7 @@ textarea.fi{resize:none;height:60px;font-size:12px}
 // ══════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════
-const GS_URL = 'https://script.google.com/macros/s/AKfycbwMffdxsCi3gtRO8ujNR7O0d2prxgQ2mbgbY8gCIp-AiW1OxO5_K677RAsv_kKzcYDo/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbxY1yoyFlgM1WDIw3MVg7AnqObkYq4-Ag7T9OtGd-WMUXPX9_mPvh4hbEEQBK0HYyDC/exec';
 
 const EXECUTIVES = [
   {name:'Suresh',   role:'Executive',     emoji:'🏍️', type:'exec'},
@@ -1587,16 +1587,23 @@ function confirmReset(){
 // ══ GOOGLE SHEET SENDER ══════════════════════════════════════
 // Uses URLSearchParams — simple request, no CORS preflight, Apps Script reads e.parameter.payload
 async function sendToSheet(jsonPayload){
-  const body = new URLSearchParams();
-  body.append('payload', jsonPayload);
-  const r = await fetch(GS_URL, {
-    method: 'POST',
-    body: body
-    // NO Content-Type header — browser sets it to application/x-www-form-urlencoded automatically
-    // This is a "simple request" — no CORS preflight needed!
-  });
-  const txt = await r.text();
-  try{ return JSON.parse(txt); }catch(e){ return {}; }
+  try {
+    const body = new URLSearchParams();
+    body.append('payload', jsonPayload);
+    const r = await fetch(GS_URL, {
+      method: 'POST',
+      body: body
+    });
+    const txt = await r.text();
+    console.log('Sheet response:', txt.substring(0,200));
+    try { return JSON.parse(txt); } catch(e) {
+      console.error('Parse error:', e, 'Raw:', txt.substring(0,100));
+      return {};
+    }
+  } catch(err) {
+    console.error('sendToSheet error:', err);
+    throw err;
+  }
 }
 
 
