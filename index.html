@@ -1391,18 +1391,88 @@ async function pushToSheet(){
   if(!adminAccounts.length){showToast('No accounts','red');return;}
   const btn=document.getElementById('btnPush');
   const msg=document.getElementById('adminMsg');
-  btn.disabled=true; btn.textContent='📤 Pushing...'; msg.style.display='none';
+  const rpt=document.getElementById('uploadReport');
+  btn.disabled=true; btn.textContent='📤 Pushing...';
+  msg.style.display='none'; rpt.style.display='none';
   try{
     const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const payload = JSON.stringify({type:'appointments',date:today,accounts:adminAccounts});
-    await sendToSheet(payload);
-    msg.className='stmsg ok';
-    const res = await (await fetch(GS_URL+'?type=check')).json().catch(()=>({}));
-    msg.innerHTML='✅ <b>'+adminAccounts.length+' accounts processed!</b><br>'
-      +'<span style="font-size:11px;font-weight:400">Check Google Sheet → Appointments tab to confirm.<br>'
-      +'Historic duplicates removed automatically → check TC_Base_Rejected tab!</span>';
-    msg.style.display='block';
-    showToast('✅ Pushed!');
+    const batch = 'VOA_'+new Date().toLocaleString('en-GB',{month:'short',year:'numeric'}).replace(' ','_').toUpperCase()+'_'+Date.now().toString().slice(-3);
+    const payload = JSON.stringify({type:'appointments',date:today,batch:batch,accounts:adminAccounts});
+    const result = await sendToSheet(payload) || {};
+
+    const total    = adminAccounts.length;
+    const fresh    = result.fresh    ?? total;
+    const rejected = result.rejected ?? 0;
+    const pct      = total > 0 ? Math.round((fresh/total)*100) : 0;
+
+    // Build report card
+    rpt.innerHTML = `
+      <div style="background:#fff;border-radius:14px;border:1.5px solid #DDE3ED;overflow:hidden;margin-top:12px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#1A0533,#311B92);padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#fff">📊 Upload Report</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.7);margin-top:2px">${today} · Batch: <b style="color:#fff">${batch}</b></div>
+          </div>
+          <div style="background:rgba(255,255,255,.15);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#fff">${total} received</div>
+        </div>
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid #EEE">
+          <div style="padding:14px;text-align:center;border-right:1px solid #EEE">
+            <div style="font-size:26px;font-weight:800;color:#311B92">${total}</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Total Received</div>
+          </div>
+          <div style="padding:14px;text-align:center;border-right:1px solid #EEE;background:#F6FDF7">
+            <div style="font-size:26px;font-weight:800;color:#2E7D32">${fresh}</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">✅ Fresh / Workable</div>
+          </div>
+          <div style="padding:14px;text-align:center;background:#FFF5F5">
+            <div style="font-size:26px;font-weight:800;color:#C62828">${rejected}</div>
+            <div style="font-size:9px;color:#7A8899;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px">❌ Historic Duplicates</div>
+          </div>
+        </div>
+        <!-- Progress bar -->
+        <div style="padding:12px 16px;border-bottom:1px solid #EEE">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:10px;font-weight:700;color:#2E7D32">✅ Workable ${pct}%</span>
+            <span style="font-size:10px;font-weight:700;color:#C62828">❌ Duplicate ${100-pct}%</span>
+          </div>
+          <div style="height:10px;background:#FFEBEE;border-radius:20px;overflow:hidden">
+            <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#2E7D32,#43A047);border-radius:20px;transition:width .6s ease"></div>
+          </div>
+        </div>
+        <!-- Info rows -->
+        <div style="padding:12px 16px">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F5F5F5">
+            <span style="font-size:11px;color:#7A8899">📋 Batch Number</span>
+            <span style="font-size:11px;font-weight:800;color:#311B92;font-family:monospace">${batch}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F5F5F5">
+            <span style="font-size:11px;color:#7A8899">📅 Upload Date</span>
+            <span style="font-size:11px;font-weight:700;color:#0F1923">${today}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F5F5F5">
+            <span style="font-size:11px;color:#7A8899">📌 Saved to Sheet</span>
+            <span style="font-size:11px;font-weight:700;color:#2E7D32">Appointments tab ✅</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0">
+            <span style="font-size:11px;color:#7A8899">🗑️ Duplicates logged</span>
+            <span style="font-size:11px;font-weight:700;color:#C62828">TC_Base_Rejected tab ✅</span>
+          </div>
+        </div>
+        ${rejected > 0 ? `
+        <!-- Warning -->
+        <div style="margin:0 16px 14px;background:#FFF3CD;border:1px solid #FFD700;border-radius:9px;padding:9px 12px;font-size:11px;color:#856404;font-weight:600">
+          ⚠️ ACT gave <b>${rejected} duplicate accounts</b> that were already in Historic Memory!
+          Check <b>TC_Base_Rejected</b> tab for the full list.
+        </div>` : `
+        <!-- All clean -->
+        <div style="margin:0 16px 14px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:9px;padding:9px 12px;font-size:11px;color:#2E7D32;font-weight:600">
+          ✅ No duplicates found! All ${total} accounts are fresh and workable!
+        </div>`}
+      </div>`;
+    rpt.style.display='block';
+    showToast('✅ '+fresh+' saved, '+rejected+' rejected!');
   }catch(e){
     msg.className='stmsg err';
     msg.textContent='❌ Error: '+e.message;
@@ -1497,7 +1567,8 @@ async function sendToSheet(jsonPayload){
     // NO Content-Type header — browser sets it to application/x-www-form-urlencoded automatically
     // This is a "simple request" — no CORS preflight needed!
   });
-  return r;
+  const txt = await r.text();
+  try{ return JSON.parse(txt); }catch(e){ return {}; }
 }
 
 
